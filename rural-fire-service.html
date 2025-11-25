@@ -66,7 +66,6 @@
 
     <section class="card-grid">
 
-      <!-- Overview -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🔥 NSW Rural Fire Service – Overview</div>
@@ -121,7 +120,6 @@
         </div>
       </article>
 
-      <!-- Priority codes -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">⚠ Priority Codes</div>
@@ -170,7 +168,6 @@
         </div>
       </article>
 
-      <!-- MDT Status codes -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">📟 MDT Status Codes</div>
@@ -225,43 +222,43 @@
           </div>
         </div>
       </article>
-<article class="card card-wide">
-  <div class="card-header">
-    <div class="card-title">🔍 Quick Lookup</div>
-    <div class="card-tag">Search</div>
-  </div>
-  <div class="card-body">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <input 
-        type="text" 
-        id="rfs-search" 
-        placeholder="Search for a District, Town or Code (e.g. 'Coffs Harbour' or 'Red')..."
-        style="
-          flex: 1;
-          padding: 0.6rem 0.8rem;
-          border-radius: 8px;
-          border: 1px solid var(--border-subtle);
-          background: rgba(15, 23, 42, 0.6);
-          color: var(--text-main);
-          font-size: 0.9rem;
-        "
-      >
-      <span 
-        id="rfs-search-counter" 
-        style="
-          color: var(--text-muted); 
-          font-size: 0.9rem; 
-          white-space: nowrap;
-          min-width: 80px;
-          text-align: right;
-        "
-      >
-        </span>
-    </div>
-  </div>
-</article>
-      <!-- Area Commands (grouped cards) -->
-      <!-- Area Commands -->
+
+      <article class="card card-wide">
+        <div class="card-header">
+          <div class="card-title">🔍 Quick Lookup</div>
+          <div class="card-tag">Search</div>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input 
+              type="text" 
+              id="rfs-search" 
+              placeholder="Search for a District, Town or Code (e.g. 'Coffs Harbour' or 'Red')..."
+              style="
+                flex: 1;
+                padding: 0.6rem 0.8rem;
+                border-radius: 8px;
+                border: 1px solid var(--border-subtle);
+                background: rgba(15, 23, 42, 0.6);
+                color: var(--text-main);
+                font-size: 0.9rem;
+              "
+            >
+            <span 
+              id="rfs-search-counter" 
+              style="
+                color: var(--text-muted); 
+                font-size: 0.9rem; 
+                white-space: nowrap;
+                min-width: 80px;
+                text-align: right;
+              "
+            >
+              </span>
+          </div>
+        </div>
+      </article>
+
       <article class="card">
         <div class="card-header">
           <div class="card-title">North Eastern Area Command</div>
@@ -714,7 +711,6 @@
         </div>
       </article>
 
-      <!-- Appliance Categories -->
       <article class="card" style="grid-column: 1 / -1;">
         <div class="card-header">
           <div class="card-title">🚛 Appliance Categories</div>
@@ -835,49 +831,50 @@
 </div>
 
   </main>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("rfs-search");
-  const counter = document.getElementById("rfs-search-counter");
-  if (!searchInput || !counter) return;
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("rfs-search");
+      const counter = document.getElementById("rfs-search-counter");
+      if (!searchInput || !counter) return;
 
-  searchInput.addEventListener("keyup", (e) => {
-    const term = e.target.value.toLowerCase();
-    // This selects rows from ALL tables on the page (Priority, Status, Zones, Appliances)
-    const rows = document.querySelectorAll(".table tbody tr");
-    let matchCount = 0;
+      searchInput.addEventListener("keyup", (e) => {
+        const term = e.target.value.toLowerCase();
+        // This selects rows from ALL tables on the page (Priority, Status, Zones, Appliances)
+        const rows = document.querySelectorAll(".table tbody tr");
+        let matchCount = 0;
 
-    rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      
-      // Reset background
-      row.style.backgroundColor = "";
-      row.style.transition = "background-color 0.2s ease";
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          
+          // Reset background
+          row.style.backgroundColor = "";
+          row.style.transition = "background-color 0.2s ease";
 
-      // Check match
-      if (term.length > 0 && text.includes(term)) {
-        // Apply RFS Orange highlight (matching your CSS accent)
-        row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; 
-        
-        // Scroll the first match into view smoothly if it's the first one found
-        if (matchCount === 0) {
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Check match
+          if (term.length > 0 && text.includes(term)) {
+            // Apply RFS Orange highlight (matching your CSS accent)
+            row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; 
+            
+            // Scroll the first match into view smoothly if it's the first one found
+            if (matchCount === 0) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            
+            matchCount++;
+          }
+        });
+
+        // Update the counter text
+        if (term.length > 0) {
+          counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
+          // Use standard text color for matches, red for 0
+          counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; 
+        } else {
+          counter.textContent = ""; 
         }
-        
-        matchCount++;
-      }
+      });
     });
-
-    // Update the counter text
-    if (term.length > 0) {
-      counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
-      // Use standard text color for matches, red for 0
-      counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; 
-    } else {
-      counter.textContent = ""; 
-    }
-  });
-});
-</script>
+  </script>
 </body>
 </html>
