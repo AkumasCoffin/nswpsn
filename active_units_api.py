@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Active Units & Talkgroups API for Rdio-Scanner.
+"""Active Units, Talkgroups & Visitor Tracking API.
 
 - Reads SQLite DB defined in RDIO_SCANNER_DB environment variable.
-- Implements in-memory caching (30s) to reduce database disk I/O.
-- Exposes:
-    * /api/active-units
-    * /api/active-talkgroups
+- Implements in-memory caching (5s).
+- Tracks active visitors (unique IPs in last 5 mins).
+- Cleans up console logs (hides default GET requests).
+- Shows REAL IPs in the terminal.
 """
 
 import os
@@ -14,84 +14,105 @@ import logging
 import time
 from datetime import datetime, timezone, timedelta
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Configure Logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
-# Configuration
+# --- CONFIGURATION ---
 DB_PATH = os.environ.get("RDIO_SCANNER_DB", "/home/lynx/Desktop/rdio-scanner.db")
 MAX_AGE = timedelta(hours=1)
-CACHE_TIMEOUT = 30  # Seconds to hold data in memory
+CACHE_TIMEOUT = 5        # Cache DB results for 5 seconds
+VISITOR_TIMEOUT = 300    # Count a visitor as "active" for 5 mins
+
+# --- LOGGING SETUP ---
+# 1. Disable the default spammy Flask/Werkzeug logs (GET /api/...)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR) 
+
+# 2. Setup our own clean logger
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(message)s',
+    datefmt='%H:%M:%S'
+)
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# In-memory cache storage
-# Structure: { 'key': (timestamp, data) }
-_cache = {}
+# --- FIX REAL IPS (Cloudflare/Nginx) ---
+# This tells Flask to trust the headers sent by Cloudflare/Nginx
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 
+# --- IN-MEMORY STORAGE ---
+_cache = {}
+_visitors = {}  # { '192.168.1.50': 1716600000.0 }
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
-
+# --- CACHE HELPERS ---
 def get_cached_data(key):
-    """Retrieve data from cache if it hasn't expired."""
     entry = _cache.get(key)
     if entry:
         timestamp, data = entry
-        # Check if the data is fresh (younger than CACHE_TIMEOUT)
         if time.time() - timestamp < CACHE_TIMEOUT:
             return data
     return None
 
-
 def set_cached_data(key, data):
-    """Save data to cache with the current timestamp."""
     _cache[key] = (time.time(), data)
 
+# --- VISITOR TRACKING ---
+def track_visitor():
+    """Log the IP and clean up old visitors."""
+    # Priority: 1. Cloudflare Header  2. X-Forwarded-For  3. Direct IP
+    ip = request.headers.get('CF-Connecting-IP', request.remote_addr)
+    
+    now = time.time()
+    _visitors[ip] = now
+
+    # Remove visitors who haven't been seen in 5 mins
+    expired_ips = [user_ip for user_ip, last_seen in _visitors.items() if now - last_seen > VISITOR_TIMEOUT]
+    for user_ip in expired_ips:
+        del _visitors[user_ip]
+
+    # Return the CURRENT visitor's IP and the TOTAL active count
+    return ip, len(_visitors)
 
 def get_system_name_map(conn):
-    """Return mapping systemId -> human readable name."""
-    # We can cache this longer or just let it run since it's fast.
-    # For simplicity, we won't cache this individually as it's part of the main queries.
     try:
         cur = conn.execute("PRAGMA table_info(rdioScannerSystems)")
         cols = [row[1] for row in cur.fetchall()]
-
-        name_col = None
-        for candidate in ("name", "label", "shortName", "short_name"):
-            if candidate in cols:
-                name_col = candidate
-                break
-
-        if not name_col:
-            return {}
-
+        name_col = next((c for c in ("name", "label", "shortName", "short_name") if c in cols), None)
+        if not name_col: return {}
         sql = f"SELECT id, {name_col} AS name FROM rdioScannerSystems"
         cur = conn.execute(sql)
         return {row["id"]: row["name"] for row in cur.fetchall()}
     except Exception:
-        logging.error("Failed to build system name map.", exc_info=True)
         return {}
 
+# --- ROUTES ---
 
 @app.route("/api/active-units", methods=["GET"])
 def active_units():
-    # 1. Check Cache
+    # Track user on every heartbeat
+    current_ip, active_count = track_visitor()
+    
+    # List of all currently active IPs for the log
+    active_ips_list = list(_visitors.keys())
+
+    # Check Cache
     cached = get_cached_data("active_units")
     if cached:
-        # Return cached response immediately
+        # Optional: Log heartbeat if you want to see every request (can be spammy)
+        # logging.info(f"♥ Cache Hit | Visitor: {current_ip}")
         return jsonify(cached)
 
-    # 2. If no cache, Query DB
+    # LOGGING: Show who triggered the refresh and who else is online
+    logging.info(f"⚡ DB Query | Request by: {current_ip} | Total Active: {active_count} | IPs: {active_ips_list}")
+
     now = datetime.utcnow()
     cutoff = now - MAX_AGE
     cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
@@ -127,52 +148,42 @@ def active_units():
             unit_id = row["unit_id"]
             raw_last_seen = row["last_seen_dt"]
             system_id = row["system_id"]
-            seen_count = row["seen_count"]
-
+            system_name = system_names.get(system_id, f"System {system_id}")
+            
             last_seen_iso = None
             if raw_last_seen:
                 try:
                     dt = datetime.fromisoformat(raw_last_seen)
-                    if dt.tzinfo is None:
-                        dt = dt.replace(tzinfo=timezone.utc)
+                    if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
                     last_seen_iso = dt.isoformat()
-                except Exception:
-                    last_seen_iso = str(raw_last_seen)
-
-            label = row["unit_label"]
-            system_name = system_names.get(system_id, f"System {system_id}")
+                except: last_seen_iso = str(raw_last_seen)
 
             results.append({
                 "unit_id": unit_id,
-                "label": label,
+                "label": row["unit_label"],
                 "system_id": system_id,
                 "system_name": system_name,
-                "seen_count": seen_count,
+                "seen_count": row["seen_count"],
                 "last_seen_iso": last_seen_iso,
                 "agency": system_name,
             })
 
-        # 3. Save to Cache
         set_cached_data("active_units", results)
-        
         return jsonify(results)
 
-    except Exception:
-        logging.error("Error querying active units.", exc_info=True)
+    except Exception as e:
+        logging.error(f"Error in active_units: {e}", exc_info=True)
         return jsonify({"error": "internal_error"}), 500
     finally:
-        if conn is not None:
-            conn.close()
+        if conn: conn.close()
 
 
 @app.route("/api/active-talkgroups", methods=["GET"])
 def active_talkgroups():
-    # 1. Check Cache
     cached = get_cached_data("active_talkgroups")
     if cached:
         return jsonify(cached)
 
-    # 2. If no cache, Query DB
     now = datetime.utcnow()
     cutoff = now - MAX_AGE
     cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
@@ -208,45 +219,45 @@ def active_talkgroups():
             talkgroup_id = row["talkgroup_id"]
             raw_last_seen = row["last_seen_dt"]
             system_id = row["system_id"]
-            seen_count = row["seen_count"]
+            system_name = system_names.get(system_id, f"System {system_id}")
 
             last_seen_iso = None
             if raw_last_seen:
                 try:
                     dt = datetime.fromisoformat(raw_last_seen)
-                    if dt.tzinfo is None:
-                        dt = dt.replace(tzinfo=timezone.utc)
+                    if dt.tzinfo is None: dt = dt.replace(tzinfo=timezone.utc)
                     last_seen_iso = dt.isoformat()
-                except Exception:
-                    last_seen_iso = str(raw_last_seen)
-
-            label = row["talkgroup_label"]
-            system_name = system_names.get(system_id, f"System {system_id}")
+                except: last_seen_iso = str(raw_last_seen)
 
             results.append({
                 "talkgroup_id": talkgroup_id,
-                "label": label,
+                "label": row["talkgroup_label"],
                 "system_id": system_id,
                 "system_name": system_name,
-                "seen_count": seen_count,
+                "seen_count": row["seen_count"],
                 "last_seen_iso": last_seen_iso,
                 "agency": system_name,
             })
 
-        # 3. Save to Cache
         set_cached_data("active_talkgroups", results)
-
         return jsonify(results)
 
-    except Exception:
-        logging.error("Error querying active talkgroups.", exc_info=True)
+    except Exception as e:
+        logging.error(f"Error in active_talkgroups: {e}", exc_info=True)
         return jsonify({"error": "internal_error"}), 500
     finally:
-        if conn is not None:
-            conn.close()
+        if conn: conn.close()
 
+@app.route("/api/status", methods=["GET"])
+def server_status():
+    """Optional endpoint to check visitor count."""
+    return jsonify({
+        "active_visitors_5min": len(_visitors),
+        "active_ips": list(_visitors.keys()),
+        "cache_active": len(_cache) > 0
+    })
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "5001"))
-    logging.info(f"Starting API server on port {port}...")
+    logging.info(f"--- Starting NSW PSN API on port {port} ---")
     app.run(host="0.0.0.0", port=port)
