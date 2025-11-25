@@ -3,25 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – Aviation & Callsigns</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 <script>
-  if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-  }
+  if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 </script>
-  <aside class="sidebar">
+
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Aviation</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
-    <div class="sidebar-subtitle">
-      Quick reference handbook for NSW Public Safety Network monitoring.
-    </div>
+    <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
 
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
       <a href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
@@ -29,7 +36,7 @@
       <a href="links.html">Useful Links</a>
     </nav>
 
-        <div class="sidebar-section-label">Live Scanner</div>
+    <div class="sidebar-section-label">Live Scanner</div>
     <div class="sidebar-highlight">
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
       <div>Hosted by Forcequit</div>
@@ -64,41 +71,30 @@
   </aside>
 
   <main class="main">
-
     <header class="main-header">
       <div class="breadcrumb">Aviation & Callsigns</div>
-      <h1>✈ Aviation &amp; Emergency Services Aircraft</h1>
+      <h1>✈ Aviation &amp; Emergency Aircraft</h1>
       <p>
-        Aircraft registrations, callsigns and common roles for NSW Ambulance, NSW Police, RFS, FRNSW, Westpac
-        and RFDS aviation assets operating in and around NSW.
+        Aircraft registrations and callsigns for NSW Ambulance, Police, RFS, Westpac Life Saver, and RFDS operating in NSW.
       </p>
     </header>
 
     <section class="card-grid">
 
-      <!-- AIR AMBULANCE NSW -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🛩 Air Ambulance NSW – Fixed Wing</div>
-          <div class="card-tag">Aviation</div>
         </div>
-
         <div class="card-body">
           <p>
             NSW Ambulance operates a fleet of fixed-wing aircraft for urgent patient transfers, long-distance
             retrievals and specialist medical transport.
           </p>
-
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Type</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Type</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-AMR</td><td>AM222</td><td>Pilatus PC-24</td><td>NSW Ambulance jet – long range.</td></tr>
@@ -115,30 +111,20 @@
         </div>
       </article>
 
-
-      <!-- NSW AMBULANCE HEMS (TOLL) -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚁 NSW Ambulance / Toll HEMS</div>
-          <div class="card-tag">Aviation</div>
         </div>
-
         <div class="card-body">
           <p>
             AW139 helicopters operated by Toll Helicopters on behalf of NSW Ambulance, using RSCU callsigns for
-            aeromedical response across NSW.
+            aeromedical response.
           </p>
-
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Operator / Agency</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Operator / Agency</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-TJE</td><td>RSCU201</td><td>Toll Helicopters / NSW Ambulance</td><td>Leonardo AW139</td></tr>
@@ -154,29 +140,17 @@
         </div>
       </article>
 
-      <!-- WESTPAC RESCUE -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚁 Westpac Rescue Helicopters</div>
-          <div class="card-tag">Aviation</div>
         </div>
-
         <div class="card-body">
-          <p>
-            Westpac-branded rescue helicopters operated on behalf of NSW Ambulance and Tasmania Police.
-            Where multiple agencies are shown, Westpac (or the listed operator) flies the aircraft for that service.
-          </p>
-
+          <p>Westpac-branded rescue helicopters operated on behalf of NSW Ambulance and Tasmania Police.</p>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Region / Agency</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Region / Agency</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-ZXA</td><td>WP1</td><td>Westpac / NSW Ambulance (Northern NSW)</td><td>Leonardo AW139</td></tr>
@@ -193,29 +167,20 @@
         </div>
       </article>
 
-      <!-- NSW POLICE AIR WING -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚔 NSW Police Air Wing</div>
-          <div class="card-tag">Aviation</div>
         </div>
-
         <div class="card-body">
           <p>
             NSW Police operate multiple aircraft under the PolAir callsign for patrols, search and rescue,
             surveillance and tactical support.
           </p>
-
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Role</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Role</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-POA</td><td>PolAir 1</td><td>General Duty</td><td>EC135</td></tr>
@@ -231,30 +196,17 @@
         </div>
       </article>
 
-
-      <!-- SURF LIFE SAVING NSW / LIFESAVER -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🏖 Surf Life Saving NSW – Life Saver Helicopters</div>
-          <div class="card-tag">SLSNSW</div>
         </div>
-
         <div class="card-body">
-          <p>
-            BK117 helicopters used as Westpac Life Saver Rescue Helicopters, operated on behalf of Surf Life Saving NSW
-            with LIFE callsigns along the NSW coast.
-          </p>
-
+          <p>Westpac Life Saver Rescue Helicopters operated on behalf of Surf Life Saving NSW.</p>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Operator / Agency</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Operator / Agency</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-SRF</td><td>LIFE21</td><td>Helicopter operator / SLSNSW</td><td>MBB-Kawasaki BK117</td></tr>
@@ -267,26 +219,17 @@
         </div>
       </article>
 
-      <!-- RFS / FRNSW AVIATION -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🔥 RFS &amp; FRNSW Fire Aviation</div>
-          <div class="card-tag">Aviation</div>
         </div>
-
         <div class="card-body">
           <p>Common aerial firefighting aircraft used across NSW during bushfire seasons.</p>
-
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Agency</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Agency</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-TQO</td><td>Firebird 200</td><td>NSW RFS</td><td>Bell 412</td></tr>
@@ -298,33 +241,20 @@
               </table>
             </div>
           </div>
-
         </div>
       </article>
 
-      <!-- RFDS -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🌙 Royal Flying Doctor Service</div>
-          <div class="card-tag">RFDS</div>
         </div>
-
         <div class="card-body">
-          <p>
-            Fixed-wing aircraft used by RFDS sections that commonly interact with NSW – Central Operations, Queensland
-            Section, Western Operations (WA) and the South Eastern Section (NSW/ACT/VIC/TAS).
-          </p>
-
+          <p>Fixed-wing aircraft used by RFDS sections that commonly interact with NSW.</p>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table aircraft-table">
                 <thead>
-                  <tr>
-                    <th>Reg</th>
-                    <th>Callsign</th>
-                    <th>Section</th>
-                    <th>Type</th>
-                  </tr>
+                  <tr><th>Reg</th><th>Callsign</th><th>Section</th><th>Type</th></tr>
                 </thead>
                 <tbody>
                   <tr><td>VH-FNH</td><td>FD527</td><td>Central Operations (SA/NT)</td><td>Beechcraft King Air</td></tr>
@@ -338,18 +268,23 @@
               </table>
             </div>
           </div>
-
         </div>
       </article>
 
     </section>
 
-<div class="main-footer-note">
-  Aviation &amp; callsigns reference (unofficial) – Forcequit. ·
-  <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
-</div>
-
-
+    <div class="main-footer-note">
+      Aviation reference (unofficial) · <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
+    </div>
   </main>
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

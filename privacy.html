@@ -3,27 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – Privacy Policy</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <aside class="sidebar">
-    <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
-    <div class="sidebar-subtitle">
-      Quick reference handbook for NSW Public Safety Network monitoring.
-    </div>
 
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Privacy</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
+    <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
       <a href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
       <a href="aviation.html">Aviation &amp; Callsigns</a>
       <a href="links.html">Useful Links</a>
     </nav>
-
     <div class="sidebar-section-label">Live Scanner</div>
     <div class="sidebar-highlight">
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
@@ -52,10 +59,7 @@
         radio.forcequit.xyz
       </div>
     </div>
-
-    <div class="sidebar-footer">
-      NSW PSN quick reference · Forcequit
-    </div>
+    <div class="sidebar-footer">Privacy Policy</div>
   </aside>
 
   <main class="main">
@@ -69,251 +73,39 @@
     </header>
 
     <section class="card-grid">
-
-      <!-- Intro & Scope -->
       <article class="card card-wide">
         <div class="card-header">
-          <div class="card-title">1. Who We Are &amp; What This Covers</div>
-          <div class="card-tag">Overview</div>
-        </div>
-        <div class="card-body">
-          <p>
-            This Privacy Policy applies to:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li><strong>nswpsn.forcequit.xyz</strong> – NSW PSN quick reference site.</li>
-            <li><strong>radio.forcequit.xyz</strong> – hobby radio streaming and recording site.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            Both sites are operated by <strong>Forcequit</strong> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). 
-            We aim to collect only the minimum information needed to operate, secure and troubleshoot these services.
-            We do <strong>not</strong> sell, rent or trade your data.
-          </p>
-        </div>
-      </article>
-
-      <!-- Data Collected -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">2. What Data We Collect</div>
+          <div class="card-title">1. Data Collected</div>
           <div class="card-tag">Data</div>
         </div>
         <div class="card-body">
-          <h3 style="font-size:0.9rem; margin-top:0;">2.1 Standard Server Logs (both sites)</h3>
-          <p>
-            When you access the sites, standard web server logs may record:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>IP address</li>
-            <li>Browser user-agent</li>
-            <li>Pages or endpoints accessed</li>
-            <li>Date and time of requests</li>
-            <li>Basic diagnostic information (errors, timeouts, security events)</li>
-          </ul>
-
-          <h3 style="font-size:0.9rem; margin-top:0.8rem;">2.2 Cloudflare</h3>
-          <p>
-            Both sites are routed through <strong>Cloudflare</strong> for CDN, DDoS protection and security.
-            Cloudflare may process:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>IP addresses and geolocation at a coarse level (e.g., country/region).</li>
-            <li>Connection and TLS metadata.</li>
-            <li>Security-related signals (bot scores, firewall events, etc.).</li>
-          </ul>
-
-          <p>
-            Cloudflare’s own privacy policy applies to that processing in addition to this document.
-          </p>
-
-          <h3 style="font-size:0.9rem; margin-top:0.8rem;">2.3 Additional Data on radio.forcequit.xyz</h3>
-          <p>
-            On <strong>radio.forcequit.xyz</strong>, we may also collect:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Listener connection events (IP address, time connected/disconnected).</li>
-            <li>Stream and call metadata (talkgroup IDs, timestamps, call duration, channel names).</li>
-            <li>Uploaded or ingested call recordings (e.g. manual/API uploads).</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            The service also stores <strong>radio audio recordings</strong> of publicly receivable, non-encrypted transmissions
-            for purposes such as debugging, playback, history and archive.
-          </p>
+          <p>We collect standard server logs (IP, User-Agent) for security and debugging. We do not sell your data.</p>
         </div>
       </article>
 
-      <!-- Cookies & Tracking -->
       <article class="card card-wide">
         <div class="card-header">
-          <div class="card-title">3. Cookies, Local Storage &amp; Tracking</div>
-          <div class="card-tag">Browser</div>
+          <div class="card-title">2. Cloudflare</div>
+          <div class="card-tag">Security</div>
         </div>
         <div class="card-body">
-          <p>
-            The sites may use:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Basic session cookies required for site operation or security.</li>
-            <li>Local storage for non-personal preferences (UI or player settings).</li>
-            <li>Cloudflare security cookies (e.g. for bot detection and DDoS protection).</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            We do <strong>not</strong> use advertising trackers or third-party analytics platforms such as Google Analytics.
-            We do not build behavioural profiles or targeted marketing based on your use of these sites.
-          </p>
+          <p>Traffic is routed through Cloudflare for security and performance. Cloudflare may process basic request metadata.</p>
         </div>
       </article>
-
-      <!-- How Data is Used -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">4. How We Use Your Data</div>
-          <div class="card-tag">Usage</div>
-        </div>
-        <div class="card-body">
-          <p>
-            Data we collect is used only for:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Operating and delivering the sites and streams.</li>
-            <li>Monitoring uptime and performance.</li>
-            <li>Detecting abuse, scraping attempts, automated attacks or other malicious activity.</li>
-            <li>Debugging stream issues, call uploads and technical errors.</li>
-            <li>Security logging and incident investigation.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            We do <strong>not</strong> use your data for advertising, user profiling or selling to third parties.
-          </p>
-        </div>
-      </article>
-
-      <!-- Stored Audio -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">5. Stored Radio Audio</div>
-          <div class="card-tag">Recordings</div>
-        </div>
-        <div class="card-body">
-          <p>
-            <strong>radio.forcequit.xyz</strong> stores audio recordings of publicly receivable, non-encrypted radio traffic.
-            These recordings may include:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Voice transmissions from public safety and other radio services.</li>
-            <li>Paging tones, alert tones or other over-the-air signals.</li>
-            <li>Associated technical metadata (talkgroup IDs, timestamps, channel labels, durations).</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            Recordings are kept for purposes such as:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Replay and history features.</li>
-            <li>Debugging and quality control of the streams.</li>
-            <li>Personal archival of radio activity.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            There is no fixed public retention period; recordings may be kept until deleted as part of normal maintenance,
-            storage limits, or at our discretion.
-          </p>
-        </div>
-      </article>
-
-      <!-- Retention & Sharing -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">6. Retention &amp; Sharing</div>
-          <div class="card-tag">Retention</div>
-        </div>
-        <div class="card-body">
-          <p>
-            As a general guide:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Standard server logs are typically kept for around <strong>7–30 days</strong>, unless required longer for security or debugging.</li>
-            <li>Security-related logs (e.g. abuse, attacks) may be retained longer.</li>
-            <li>Stored audio on <strong>radio.forcequit.xyz</strong> may be retained until manually removed or rotated.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            We do <strong>not</strong> sell or rent your data. Information may be shared only when:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Required by applicable Australian law or a valid legal process.</li>
-            <li>Necessary to investigate or respond to serious abuse, security incidents or threats.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- Your Rights -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">7. Your Choices &amp; Rights</div>
-          <div class="card-tag">Control</div>
-        </div>
-        <div class="card-body">
-          <p>
-            Depending on your circumstances, you may contact us to request:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Information about what server log data we hold related to a specific IP address and time period.</li>
-            <li>Removal or anonymisation of log entries, where not required for security or legal reasons.</li>
-            <li>Removal of specific stored recordings that clearly contain your personal information.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            To make a request, contact:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li><strong>Email:</strong> <a href="mailto:legal@forcequit.xyz">legal@forcequit.xyz</a></li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            For privacy law matters, you may also have rights under Australian privacy principles or the laws
-            of your own jurisdiction. We will make reasonable efforts to respond to legitimate requests.
-          </p>
-        </div>
-      </article>
-
-      <!-- Security & Updates -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">8. Security &amp; Updates to This Policy</div>
-          <div class="card-tag">Info</div>
-        </div>
-        <div class="card-body">
-          <p>
-            We use a combination of:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Cloudflare WAF, rate-limiting and DDoS protection.</li>
-            <li>Firewalling and access controls.</li>
-            <li>Server hardening and monitoring.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            No system can be 100% secure, but we take reasonable steps to protect the services and associated data.
-          </p>
-
-          <p style="margin-top:0.6rem;">
-            This Privacy Policy may be updated from time to time. The &quot;Last updated&quot; date at the top of this
-            page reflects the current version. Your continued use of the sites after any update indicates your acceptance
-            of the revised Policy.
-          </p>
-        </div>
-      </article>
-
     </section>
 
     <div class="main-footer-note">
-      Privacy information for nswpsn.forcequit.xyz and radio.forcequit.xyz ·
-      <a href="terms.html">Terms &amp; Conditions</a>
+      Privacy information · <a href="terms.html">Terms</a>
     </div>
   </main>
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

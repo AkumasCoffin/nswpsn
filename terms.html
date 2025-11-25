@@ -3,27 +3,34 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – Terms &amp; Conditions</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-  <aside class="sidebar">
-    <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
-    <div class="sidebar-subtitle">
-      Quick reference handbook for NSW Public Safety Network monitoring.
-    </div>
 
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Terms</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
+    <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
       <a href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
       <a href="aviation.html">Aviation &amp; Callsigns</a>
       <a href="links.html">Useful Links</a>
     </nav>
-
     <div class="sidebar-section-label">Live Scanner</div>
     <div class="sidebar-highlight">
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
@@ -52,10 +59,7 @@
         radio.forcequit.xyz
       </div>
     </div>
-
-    <div class="sidebar-footer">
-      NSW PSN quick reference · Forcequit
-    </div>
+    <div class="sidebar-footer">NSW PSN quick reference</div>
   </aside>
 
   <main class="main">
@@ -64,14 +68,11 @@
       <h1>📜 Terms &amp; Conditions</h1>
       <p>
         These Terms &amp; Conditions apply to the NSW PSN reference site
-        <strong>nswpsn.forcequit.xyz</strong> and the radio streaming site
-        <strong>radio.forcequit.xyz</strong>, both operated by <strong>Forcequit</strong>.
+        <strong>nswpsn.forcequit.xyz</strong> and the radio streaming site.
       </p>
     </header>
 
     <section class="card-grid">
-
-      <!-- Scope & Purpose -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">1. Scope &amp; Purpose</div>
@@ -79,164 +80,36 @@
         </div>
         <div class="card-body">
           <p>
-            These Terms &amp; Conditions (&quot;Terms&quot;) govern your access to and use of:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li><strong>nswpsn.forcequit.xyz</strong> – an unofficial NSW PSN quick reference site for hobby monitoring.</li>
-            <li><strong>radio.forcequit.xyz</strong> – a hobby radio streaming and recording service.</li>
-          </ul>
-
-          <p>
-            Both sites are operated by <strong>Forcequit</strong> (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;). 
-            By accessing or using either site, you agree to be bound by these Terms.
-          </p>
-
-          <p style="margin-top:0.6rem;">
             The sites are intended for <strong>hobby radio monitoring only</strong>.
             They are <strong>not official</strong> and must not be used for safety-critical,
             operational, emergency, or life-saving purposes.
           </p>
         </div>
       </article>
-
-      <!-- Use & Restrictions -->
+      
       <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">2. Acceptable Use &amp; Restrictions</div>
-          <div class="card-tag">Usage</div>
-        </div>
-        <div class="card-body">
-          <p>
-            You agree that you will <strong>not</strong>:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Use information or audio from the sites for real-world operational or emergency response.</li>
-            <li>Interfere with, disrupt or attempt to disrupt emergency services or their communications.</li>
-            <li>Scrape, mass-harvest, or attempt to bypass technical or rate-limiting protections.</li>
-            <li>Harass, stalk, dox, or attempt to identify individuals based on any audio or information.</li>
-            <li>Use the sites for any illegal, abusive, or malicious purpose.</li>
-            <li>Commercialise, restream, rebroadcast or redistribute content without our written consent.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            You acknowledge that:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Information on <strong>nswpsn.forcequit.xyz</strong> may be incomplete, outdated or inaccurate.</li>
-            <li>Audio and services on <strong>radio.forcequit.xyz</strong> may be delayed, unavailable or incorrect.</li>
-            <li>The sites may be modified, limited, or taken offline at any time without notice.</li>
-          </ul>
-        </div>
+         <div class="card-header">
+           <div class="card-title">2. Use &amp; Restrictions</div>
+           <div class="card-tag">Rules</div>
+         </div>
+         <div class="card-body">
+           <p>You agree not to use this information for real-world emergency response or to interfere with emergency services.</p>
+         </div>
       </article>
-
-      <!-- Radio Audio & Storage -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">3. Radio Audio, Recordings &amp; Content</div>
-          <div class="card-tag">Audio</div>
-        </div>
-        <div class="card-body">
-          <p>
-            <strong>radio.forcequit.xyz</strong> provides streams of <strong>publicly receivable, non-encrypted radio transmissions</strong>.
-            The service may also store and expose <strong>audio recordings</strong> and associated metadata (such as talkgroup IDs, timestamps and call lengths).
-          </p>
-          <p style="margin-top:0.6rem;">
-            By using the service you acknowledge and agree that:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Recordings may be kept for debugging, archive, playback and listener history.</li>
-            <li>We do not guarantee any retention period, completeness, or permanent availability of recordings.</li>
-            <li>We do not originate the underlying emergency communications; we only receive and relay over-the-air signals.</li>
-          </ul>
-
-          <p style="margin-top:0.6rem;">
-            You must not:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>Use the audio to coordinate response, self-deploy to incidents, or make safety-critical decisions.</li>
-            <li>Publish, restream or embed the audio or recordings publicly without our explicit permission.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- Cloudflare, IP & External Links -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">4. Cloudflare, Networking &amp; External Links</div>
-          <div class="card-tag">Infrastructure</div>
-        </div>
-        <div class="card-body">
-          <p>
-            Traffic to both <strong>nswpsn.forcequit.xyz</strong> and <strong>radio.forcequit.xyz</strong> is routed through
-            <strong>Cloudflare</strong> for purposes including caching, DDoS protection and security filtering.
-          </p>
-          <p style="margin-top:0.6rem;">
-            Cloudflare may collect IP addresses and other connection metadata as part of providing those services.
-            Use of the sites therefore implies acceptance of Cloudflare’s relevant terms and privacy practices.
-          </p>
-
-          <p style="margin-top:0.6rem;">
-            The sites also contain links to external services (e.g. NSW RFS, NSW Ambulance, NSW Police, BoM, ACMA, Broadcastify,
-            RadioReference, GitHub). We do not control and are not responsible for the content or availability of those external sites.
-          </p>
-        </div>
-      </article>
-
-      <!-- IP, Ownership & Liability -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">5. Intellectual Property &amp; Liability</div>
-          <div class="card-tag">Legal</div>
-        </div>
-        <div class="card-body">
-          <p>
-            Unless otherwise stated, all custom content including text, layout, tables, styling, scripts and hosted audio
-            on <strong>nswpsn.forcequit.xyz</strong> and <strong>radio.forcequit.xyz</strong> is owned by <strong>Forcequit</strong>.
-          </p>
-          <p style="margin-top:0.6rem;">
-            You may not copy, mirror, republish, or redistribute any content (including audio and recordings) from the sites
-            without our written permission.
-          </p>
-
-          <p style="margin-top:0.6rem;">
-            To the maximum extent permitted by Australian law:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li>The sites are provided strictly <strong>&quot;as is&quot;</strong> and &quot;as available&quot;.</li>
-            <li>No warranty is given regarding accuracy, reliability, uptime, or suitability of the content.</li>
-            <li>We are not liable for any loss, damage, injury or consequence resulting from your use of the sites or reliance on any information or audio.</li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- Changes & Contact -->
-      <article class="card card-wide">
-        <div class="card-header">
-          <div class="card-title">6. Changes &amp; Contact</div>
-          <div class="card-tag">Info</div>
-        </div>
-        <div class="card-body">
-          <p>
-            These Terms may be updated from time to time. The &quot;Last updated&quot; date at the top of this page
-            will reflect the most recent version. Continued use of the sites after changes are published indicates your
-            acceptance of the updated Terms.
-          </p>
-
-          <p style="margin-top:0.6rem;">
-            For legal or privacy enquiries, takedown requests, or permission to use content, contact:
-          </p>
-          <ul style="margin-left:1.2rem;">
-            <li><strong>Email:</strong> <a href="mailto:legal@forcequit.xyz">legal@forcequit.xyz</a></li>
-          </ul>
-        </div>
-      </article>
-
     </section>
 
     <div class="main-footer-note">
-      Legal information for nswpsn.forcequit.xyz and radio.forcequit.xyz ·
-      <a href="privacy.html">Privacy Policy</a>
+      Legal information · <a href="privacy.html">Privacy Policy</a>
     </div>
   </main>
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

@@ -3,32 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – Useful Links</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 <script>
-  if ('scrollRestoration' in history) {
-      history.scrollRestoration = 'manual';
-  }
+  if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
 </script>
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Links</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
     <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
-
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
       <a href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
       <a href="aviation.html">Aviation &amp; Callsigns</a>
       <a class="active" href="links.html">Useful Links</a>
     </nav>
-
-        <div class="sidebar-section-label">Live Scanner</div>
+    <div class="sidebar-section-label">Live Scanner</div>
     <div class="sidebar-highlight">
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
       <div>Hosted by Forcequit</div>
@@ -56,15 +62,10 @@
         radio.forcequit.xyz
       </div>
     </div>
-
-    <div class="sidebar-footer">
-      Useful links · Forcequit.
-    </div>
+    <div class="sidebar-footer">Useful links · Forcequit.</div>
   </aside>
 
-  <!-- MAIN -->
   <main class="main">
-
     <header class="main-header">
       <div class="breadcrumb">Useful Links</div>
       <h1>🔗 Useful Links</h1>
@@ -73,31 +74,52 @@
 
     <section class="card-grid">
 
-      <!-- RFS LINKS -->
+      <article class="card">
+        <div class="card-header">
+          <div class="card-title">🌧 Bureau of Meteorology</div>
+          <div class="card-tag">BOM</div>
+        </div>
+        <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Official warnings for severe weather, flood, marine and fire weather affecting NSW/ACT.
+          </p>
+          <ul style="margin-left:1rem; line-height:1.45;">
+            <li><a href="https://www.bom.gov.au/nsw/warnings.shtml" target="_blank">NSW/ACT Warnings Summary</a></li>
+            <li><a href="https://www.bom.gov.au/nsw/" target="_blank">NSW Forecasts &amp; Observations</a></li>
+            <li><a href="https://www.bom.gov.au/australia/warnings" target="_blank">Australia-wide Warnings</a></li>
+            <li><a href="https://www.bom.gov.au/australia/radar" target="_blank">Radar</a></li>
+          </ul>
+        </div>
+      </article>
+
       <article class="card">
         <div class="card-header">
           <div class="card-title">🔥 NSW Rural Fire Service</div>
           <div class="card-tag">RFS</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            The lead agency for bush fires in NSW. Access major fire updates, Total Fire Ban status, and maps.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.rfs.nsw.gov.au/" target="_blank">NSW RFS Homepage</a></li>
-            <li><a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans" target="_blank">Fire Danger Ratings &amp; Total Fire Bans</a></li>
+            <li><a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans" target="_blank">Fire Danger Ratings &amp; Fire Bans</a></li>
             <li><a href="https://www.rfs.nsw.gov.au/fire-information/major-fire-updates" target="_blank">Major Fire Updates</a></li>
-            <li><a href="https://www.rfs.nsw.gov.au/fire-information/fires-near-me" target="_blank">Fires Near Me</a></li>
-            <li><a href="https://www.rfs.nsw.gov.au/news-and-media/stay-up-to-date/feeds" target="_blank">RSS / data feeds</a></li>
-            <li><a href="https://www.rfs.nsw.gov.au/resources" target="_blank">Resources</a></li>
+            <li><a href="https://www.rfs.nsw.gov.au/fire-information/fires-near-me" target="_blank">Fires Near Me Map</a></li>
+            <li><a href="https://www.rfs.nsw.gov.au/news-and-media/stay-up-to-date/feeds" target="_blank">RSS / Data Feeds</a></li>
           </ul>
         </div>
       </article>
 
-      <!-- FRNSW LINKS -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🚒 Fire and Rescue NSW</div>
           <div class="card-tag">FRNSW</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Urban fire and rescue service protecting NSW cities and towns. Links to station finding and news.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.fire.nsw.gov.au/" target="_blank">FRNSW Homepage</a></li>
             <li><a href="https://www.fire.nsw.gov.au/page.php?id=9205" target="_blank">Station Finder</a></li>
@@ -106,30 +128,33 @@
         </div>
       </article>
 
-      <!-- NSW AMBULANCE LINKS -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🚑 NSW Ambulance</div>
           <div class="card-tag">ASNSW</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Emergency medical services and aeromedical retrieval. Access news, contact info, and service details.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.ambulance.nsw.gov.au/" target="_blank">NSW Ambulance Homepage</a></li>
-            <li><a href="https://www.ambulance.nsw.gov.au/news" target="_blank">News</a></li>
-            <li><a href="https://www.ambulance.nsw.gov.au/about-us/contact-us/other-enquiries" target="_blank">Contact</a></li>
-            <li><a href="https://www.ambulance.nsw.gov.au/our-services" target="_blank">Our Services</a></li>
+            <li><a href="https://www.ambulance.nsw.gov.au/news" target="_blank">News &amp; Updates</a></li>
+            <li><a href="https://www.ambulance.nsw.gov.au/about-us/contact-us/other-enquiries" target="_blank">Contact Info</a></li>
             <li><a href="https://www.health.nsw.gov.au/" target="_blank">NSW Health</a></li>
           </ul>
         </div>
       </article>
 
-      <!-- POLICE LINKS -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🚔 NSW Police</div>
           <div class="card-tag">POLICE</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            NSW Police Force information, including latest news, crime statistics, and community contact details.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.police.nsw.gov.au/" target="_blank">NSW Police Homepage</a></li>
             <li><a href="https://www.police.nsw.gov.au/news/news" target="_blank">Latest News</a></li>
@@ -139,13 +164,15 @@
         </div>
       </article>
 
-      <!-- SES -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🟧 NSW State Emergency Service</div>
           <div class="card-tag">SES</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Volunteer agency dedicated to flood, storm, and tsunami response. Check current warnings.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.ses.nsw.gov.au/" target="_blank">SES Homepage</a></li>
             <li><a href="https://www.ses.nsw.gov.au/during-emergency" target="_blank">Current NSW SES Warnings</a></li>
@@ -154,13 +181,15 @@
         </div>
       </article>
 
-      <!-- VRA -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🧰 NSW VRA Rescue</div>
           <div class="card-tag">VRA</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Volunteer Rescue Association providing specialized rescue services in regional and remote NSW locations.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.rescue.org.au/" target="_blank">VRA Rescue Homepage</a></li>
             <li><a href="https://www.rescue.org.au/#latestNews" target="_blank">Latest News</a></li>
@@ -168,29 +197,32 @@
         </div>
       </article>
 
-      <!-- MARINE RESCUE -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🚤 Marine Rescue NSW</div>
           <div class="card-tag">MARINE</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Volunteer marine rescue service providing 24/7 radio monitoring and emergency support on the water.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.marinerescuensw.com.au/" target="_blank">Marine Rescue Homepage</a></li>
             <li><a href="https://www.marinerescuensw.com.au/plan-log-on" target="_blank">Plan / Log On</a></li>
             <li><a href="https://www.marinerescuensw.com.au/find-a-unit" target="_blank">Find a Unit</a></li>
-            <li><a href="https://www.marinerescuensw.com.au/news-media" target="_blank">News &amp; Media</a></li>
           </ul>
         </div>
       </article>
 
-      <!-- LIVE TRAFFIC -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">🚦 Live Traffic NSW</div>
           <div class="card-tag">TRAFFIC</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            Real-time road incident alerts, traffic cameras, and congestion data from Transport for NSW.
+          </p>
           <ul style="margin-left:1rem; line-height:1.45;">
             <li><a href="https://www.livetraffic.com/" target="_blank">Live Traffic Homepage</a></li>
             <li><a href="https://www.livetraffic.com/traffic-cameras" target="_blank">Traffic Cameras</a></li>
@@ -199,29 +231,15 @@
         </div>
       </article>
 
-      <!-- BOM -->
-      <article class="card">
-        <div class="card-header">
-          <div class="card-title">🌧 Bureau of Meteorology</div>
-          <div class="card-tag">BOM</div>
-        </div>
-        <div class="card-body">
-          <ul style="margin-left:1rem; line-height:1.45;">
-            <li><a href="https://www.bom.gov.au/nsw/" target="_blank">NSW Forecasts &amp; Observations</a></li>
-            <li><a href="https://www.bom.gov.au/nsw/warnings.shtml" target="_blank">NSW Warnings</a></li>
-            <li><a href="https://www.bom.gov.au/australia/warnings" target="_blank">Australia-wide Warnings</a></li>
-            <li><a href="https://www.bom.gov.au/australia/radar" target="_blank">Radar</a></li>
-          </ul>
-        </div>
-      </article>
-
-      <!-- RADIO TOOLS -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">📡 Radio Monitoring Tools</div>
           <div class="card-tag">TOOLS</div>
         </div>
         <div class="card-body">
+          <p style="margin-bottom:0.8rem;">
+            External resources for radio scanning, including frequency databases, flight tracking, and software.
+          </p>
           <ul style="margin-left:1.2rem; line-height:1.45;">
             <li><a href="https://www.broadcastify.com/" target="_blank">Broadcastify</a></li>
             <li><a href="https://www.radioreference.com/" target="_blank">RadioReference</a></li>
@@ -243,5 +261,14 @@
     </div>
 
   </main>
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>

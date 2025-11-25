@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NSW PSN – Live Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Live Data</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
+    <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
+
+    <div class="sidebar-section-label">Sections</div>
+    <nav class="sidebar-nav">
+      <a href="index.html">Home / Overview</a>
+      <a class="active" href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
+      <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
+      <a href="ambulance.html">NSW Ambulance</a>
+      <a href="rural-fire-service.html">NSW Rural Fire Service</a>
+      <a href="aviation.html">Aviation &amp; Callsigns</a>
+      <a href="links.html">Useful Links</a>
+    </nav>
+
+    <div class="sidebar-section-label">Live Scanner</div>
+    <div class="sidebar-highlight">
+      <div class="sidebar-highlight-title">NSW PSN Scanner</div>
+      <div>Hosted by Forcequit</div>
+      <div style="margin-top:0.45rem;">
+        <a
+          class="listen-btn-wide"
+          href="https://radio.forcequit.xyz/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Live feed
+        </a>
+      </div>
+      <div style="margin-top:0.45rem;">
+        <a
+          class="discord-btn-wide"
+          href="https://discord.gg/BthQzXj6Ck"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Support Discord
+        </a>
+      </div>
+      <div style="margin-top:0.25rem; font-size:0.7rem; color:var(--text-soft);">
+        radio.forcequit.xyz
+      </div>
+    </div>
+    <div class="sidebar-footer">NSW PSN Reference · Forcequit</div>
+  </aside>
+
+  <main class="main">
+    <header class="main-header">
+      <div class="breadcrumb">Real-time Feeds</div>
+      <h1>📡 Live Scanner Data</h1>
+      <p>
+        Live feeds for Major Incidents, Active Units, and Fire Danger Ratings.
+        <br><em>Data updates automatically.</em>
+      </p>
+    </header>
+
+    <section class="card-grid">
+
+      <article class="card card-wide" id="rfs-major-incidents-card">
+        <div class="card-header">
+          <div class="card-title">NSW RFS Major Incidents (Live)</div>
+          <div class="card-tag card-tag-live">Live Feed</div>
+        </div>
+        <div class="card-body">
+          <p>
+            Live list of major incidents published by NSW RFS. Data is pulled directly from the official
+            <code>majorIncidents.xml</code> feed.
+          </p>
+          <div id="rfs-incidents-list">
+            Loading latest major incidents from NSW RFS feed…
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-wide" id="active-units-card">
+        <div class="card-header">
+          <div class="card-title">Active Units (last 60 minutes)</div>
+          <div class="card-tag card-tag-live">Live Feed</div>
+        </div>
+        <div class="card-body">
+          <p>
+            Last-heard units from the live scanner feed hosted at
+            <code>radio.forcequit.xyz</code>. Units disappear after 60&nbsp;minutes of inactivity.
+          </p>
+          <div id="active-units-list">
+            Loading active units from radio.forcequit.xyz…
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-wide" id="active-talkgroups-card">
+        <div class="card-header">
+          <div class="card-title">Active Talkgroups (last 60 minutes)</div>
+          <div class="card-tag card-tag-live">Live Feed</div>
+        </div>
+        <div class="card-body">
+          <p>
+            Last-heard talkgroups from the live scanner feed hosted at
+            <code>radio.forcequit.xyz</code>.
+          </p>
+          <div id="active-talkgroups-list">
+            Loading active talkgroups from radio.forcequit.xyz…
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-wide" id="rfs-fdr-toban-card">
+        <div class="card-header">
+          <div class="card-title">NSW Fire Danger Ratings &amp; Fire Bans</div>
+          <div class="card-tag card-tag-live">Today &amp; Tomorrow</div>
+        </div>
+        <div class="card-body">
+          <p>
+            District-level Fire Danger Ratings and Fire Ban status from the NSW RFS <code>fdrToban.xml</code> feed.
+          </p>
+          <div id="rfs-fdr-toban-content">
+            Loading Fire Danger Ratings &amp; Fire Bans…
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+    <div class="main-footer-note">
+      Unofficial monitoring data only. Always follow official agency advice and warnings.
+    </div>
+  </main>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadActiveUnits();
+      loadActiveTalkgroups();
+      loadRfsMajorIncidents();
+      loadRfsFireDangerToban();
+
+      setInterval(() => { loadActiveUnits(); loadActiveTalkgroups(); }, 30000);
+      setInterval(() => { loadRfsMajorIncidents(); loadRfsFireDangerToban(); }, 900000);
+    });
+
+    // 1. ACTIVE UNITS
+    function loadActiveUnits() {
+      const container = document.getElementById("active-units-list");
+      if (!container) return;
+      const MAX_VISIBLE = 10;
+
+      fetch("https://rdio-api.forcequit.xyz/api/active-units", { headers: { "Accept": "application/json" } })
+        .then(response => {
+          if (!response.ok) throw new Error("API Error: " + response.status);
+          return response.json();
+        })
+        .then(units => {
+          if (!Array.isArray(units)) units = [];
+          units = units.filter(u => u && u.label && String(u.label).trim().length > 0);
+
+          if (units.length === 0) {
+            container.textContent = "No labelled units heard in the last 60 minutes.";
+            return;
+          }
+
+          let showingAll = false;
+          const listWrapper = document.createElement("div");
+          listWrapper.className = "active-units-list";
+          const button = document.createElement("button");
+          button.className = "active-units-more-btn";
+          button.textContent = "Show more";
+
+          function render() {
+            listWrapper.innerHTML = "";
+            const visible = showingAll ? units : units.slice(0, MAX_VISIBLE);
+
+            visible.forEach(u => {
+              const row = document.createElement("div");
+              row.className = "active-unit-row";
+
+              const left = document.createElement("div");
+              left.className = "active-unit-ident";
+              left.textContent = u.label || u.unit_id || "Unknown unit";
+
+              const right = document.createElement("div");
+              right.className = "active-unit-meta";
+
+              const sys = (u.system_name || u.agency || "").toString().toUpperCase();
+              if (sys) {
+                let cls = "pill-agency"; 
+                if (sys.includes("FIRE AND RESCUE")) cls = "pill-agency-frnsw";
+                else if (sys.includes("STATE EMERGENCY SERVICE") || sys.includes(" SES")) cls = "pill-agency-ses";
+                else if (sys.includes("RURAL FIRE SERVICE") || sys.includes(" RFS")) cls = "pill-agency-rfs";
+                else if (sys.includes("AMBULANCE SERVICE") || sys.includes("AMBULANCE")) cls = "pill-agency-amb";
+                else if (sys.includes("HOSPITAL")) cls = "pill-agency-hosp";
+                else if (sys.includes("UTILITY")) cls = "pill-agency-util";
+
+                const p = document.createElement("span");
+                p.className = "pill " + cls;
+                p.textContent = u.system_name || u.agency;
+                right.appendChild(p);
+              }
+
+              if (u.seen_count) {
+                const c = document.createElement("span");
+                c.className = "pill pill-soft";
+                c.textContent = u.seen_count + " calls";
+                right.appendChild(c);
+              }
+
+              const t = document.createElement("span");
+              t.className = "pill pill-soft";
+              if (u.last_seen_iso) {
+                const d = new Date(u.last_seen_iso);
+                t.textContent = "Last seen " + d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+              } else {
+                t.textContent = "Time unknown";
+              }
+              right.appendChild(t);
+
+              row.appendChild(left);
+              row.appendChild(right);
+              listWrapper.appendChild(row);
+            });
+
+            if (units.length > MAX_VISIBLE) {
+              button.style.display = "block";
+              button.textContent = showingAll ? "Show less" : "Show more";
+            } else {
+              button.style.display = "none";
+            }
+          }
+
+          button.addEventListener("click", () => { showingAll = !showingAll; render(); });
+          render();
+          container.innerHTML = "";
+          container.appendChild(listWrapper);
+          if (units.length > MAX_VISIBLE) container.appendChild(button);
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = `<span style="color:#ef4444">Error loading units: ${err.message}</span>`;
+        });
+    }
+
+    // 2. ACTIVE TALKGROUPS
+    function loadActiveTalkgroups() {
+      const container = document.getElementById("active-talkgroups-list");
+      if (!container) return;
+      const MAX_VISIBLE = 10;
+
+      fetch("https://rdio-api.forcequit.xyz/api/active-talkgroups", { headers: { "Accept": "application/json" } })
+        .then(response => {
+          if (!response.ok) throw new Error("API Error: " + response.status);
+          return response.json();
+        })
+        .then(groups => {
+          if (!Array.isArray(groups)) groups = [];
+          groups = groups.filter(g => g && g.label);
+
+          if (groups.length === 0) {
+            container.textContent = "No active talkgroups.";
+            return;
+          }
+
+          let showingAll = false;
+          const listWrapper = document.createElement("div");
+          listWrapper.className = "active-units-list";
+          const button = document.createElement("button");
+          button.className = "active-units-more-btn";
+          button.textContent = "Show more";
+
+          function render() {
+            listWrapper.innerHTML = "";
+            const visible = showingAll ? groups : groups.slice(0, MAX_VISIBLE);
+
+            visible.forEach(g => {
+              const row = document.createElement("div");
+              row.className = "active-unit-row";
+
+              const left = document.createElement("div");
+              left.className = "active-unit-ident";
+              left.textContent = g.label;
+
+              const right = document.createElement("div");
+              right.className = "active-unit-meta";
+
+              const sys = (g.system_name || g.agency || "").toString().toUpperCase();
+              if (sys) {
+                let cls = "pill-agency";
+                if (sys.includes("FIRE AND RESCUE")) cls = "pill-agency-frnsw";
+                else if (sys.includes("RURAL FIRE")) cls = "pill-agency-rfs";
+                else if (sys.includes("SES")) cls = "pill-agency-ses";
+                else if (sys.includes("AMBULANCE")) cls = "pill-agency-amb";
+                
+                const p = document.createElement("span");
+                p.className = "pill " + cls;
+                p.textContent = g.system_name || g.agency;
+                right.appendChild(p);
+              }
+
+              const t = document.createElement("span");
+              t.className = "pill pill-soft";
+              if (g.last_seen_iso) {
+                const d = new Date(g.last_seen_iso);
+                t.textContent = "Last seen " + d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
+              } else {
+                t.textContent = "Time unknown";
+              }
+              right.appendChild(t);
+
+              row.appendChild(left);
+              row.appendChild(right);
+              listWrapper.appendChild(row);
+            });
+
+            if (groups.length > MAX_VISIBLE) {
+              button.style.display = "block";
+              button.textContent = showingAll ? "Show less" : "Show more";
+            } else {
+              button.style.display = "none";
+            }
+          }
+
+          button.addEventListener("click", () => { showingAll = !showingAll; render(); });
+          render();
+          container.innerHTML = "";
+          container.appendChild(listWrapper);
+          if (groups.length > MAX_VISIBLE) container.appendChild(button);
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = `<span style="color:#ef4444">Error loading talkgroups: ${err.message}</span>`;
+        });
+    }
+
+    // 3. RFS INCIDENTS
+    function loadRfsMajorIncidents() {
+      const container = document.getElementById("rfs-incidents-list");
+      if (!container) return;
+
+      fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.xml")
+        .then(response => response.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(xml => {
+          const items = Array.from(xml.getElementsByTagName("item") || []).slice(0, 6);
+          if (!items.length) {
+            container.textContent = "No major incidents listed.";
+            return;
+          }
+
+          const wrapper = document.createElement("div");
+          wrapper.style.marginTop = "0.35rem";
+
+          items.forEach((item, index) => {
+            const getTag = (t) => (item.getElementsByTagName(t)[0] || {}).textContent || "";
+            const title = getTag("title");
+            const link = getTag("link");
+            const rawDesc = getTag("description");
+
+            let descLines = rawDesc.replace(/<br\s*\/?>/gi, "\n").split("\n");
+            const fields = {};
+            descLines.forEach(line => {
+               const parts = line.split(":");
+               if (parts.length > 1) {
+                 fields[parts[0].trim().toUpperCase()] = parts.slice(1).join(":").trim();
+               }
+            });
+
+            const getField = (name) => fields[name] || "";
+            const status = getField("STATUS");
+            const level = getField("ALERT LEVEL");
+            const location = getField("LOCATION");
+            const council = getField("COUNCIL AREA");
+            const type = getField("TYPE");
+            const size = getField("SIZE");
+            const updated = getField("UPDATED");
+
+            let statusClass = "pill-blue";
+            const s = status.toUpperCase();
+            if (s.includes("NOT YET CONTROLLED") || s.includes("OUT OF CONTROL")) statusClass = "pill-red";
+            else if (s.includes("BEING CONTROLLED")) statusClass = "pill-yellow";
+            else if (s.includes("UNDER CONTROL")) statusClass = "pill-green";
+            else if (s.includes("RESPONDING")) statusClass = "pill-blue";
+
+            let levelClass = "pill-blue";
+            const l = level.toUpperCase();
+            if (l.includes("EMERGENCY")) levelClass = "pill-red";
+            else if (l.includes("WATCH AND ACT")) levelClass = "pill-orange";
+            else if (l.includes("ADVICE")) levelClass = "pill-blue";
+
+            const div = document.createElement("div");
+            div.className = "active-unit-row";
+            div.style.flexDirection = "column";
+            div.style.alignItems = "flex-start";
+            div.style.marginBottom = "0.8rem";
+            div.style.padding = "0.8rem";
+
+            let html = `
+              <div style="width:100%; display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                 <a href="${link}" target="_blank" style="font-weight:bold; color:#fff; font-size:0.95rem;">${title}</a>
+                 ${status ? `<span class="pill ${statusClass}">${status}</span>` : ''}
+              </div>
+            `;
+
+            if (level || location) {
+              html += `<div style="width:100%; display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.4rem; align-items:center;">`;
+              if (level) html += `<span class="pill ${levelClass}">${level}</span>`;
+              if (location) html += `<span style="font-size:0.85rem; color:#cbd5e1;">📍 ${location}</span>`;
+              html += `</div>`;
+            }
+
+            html += `
+              <div style="width:100%; display:grid; grid-template-columns: 1fr 1fr; gap:0.4rem; font-size:0.8rem; color:#94a3b8; margin-top:0.4rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:0.4rem;">
+                ${type ? `<div><strong style="color:#64748b">Type:</strong> ${type}</div>` : ''}
+                ${size ? `<div><strong style="color:#64748b">Size:</strong> ${size}</div>` : ''}
+                ${council ? `<div><strong style="color:#64748b">Council:</strong> ${council}</div>` : ''}
+                ${updated ? `<div><strong style="color:#64748b">Updated:</strong> ${updated}</div>` : ''}
+              </div>
+            `;
+
+            div.innerHTML = html;
+            wrapper.appendChild(div);
+          });
+
+          container.innerHTML = "";
+          container.appendChild(wrapper);
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = `<span style="color:#ef4444">Unable to load RFS Feed.</span>`;
+        });
+    }
+
+    // 4. FIRE DANGER
+    function loadRfsFireDangerToban() {
+      const container = document.getElementById("rfs-fdr-toban-content");
+      if (!container) return;
+
+      fetch("https://www.rfs.nsw.gov.au/feeds/fdrToban.xml")
+        .then(res => res.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(xml => {
+          const districts = Array.from(xml.getElementsByTagName("District"));
+          if (!districts.length) {
+            container.textContent = "No data available.";
+            return;
+          }
+
+          const list = document.createElement("div");
+          list.className = "fdr-district-list";
+
+          districts.forEach((d, i) => {
+            const name = d.getElementsByTagName("Name")[0].textContent;
+            const danger = d.getElementsByTagName("DangerLevelToday")[0].textContent;
+            const ban = d.getElementsByTagName("FireBanToday")[0].textContent;
+            
+            const dangerTom = d.getElementsByTagName("DangerLevelTomorrow")[0].textContent;
+            const banTom = d.getElementsByTagName("FireBanTomorrow")[0].textContent;
+
+            const getDangerClass = (val) => {
+               const v = val.toUpperCase();
+               if (v.includes("CATASTROPHIC")) return "pill-red";
+               if (v.includes("EXTREME")) return "pill-orange";
+               if (v.includes("HIGH")) return "pill-yellow";
+               if (v.includes("MODERATE")) return "pill-green";
+               if (v.includes("NO RATING")) return "pill-white";
+               return "pill-white";
+            };
+            
+            const getBanClass = (val) => val.toUpperCase() === "NO" ? "pill-green" : "pill-red";
+
+            const row = document.createElement("div");
+            row.className = "fdr-district";
+            if (i === 0) row.classList.add("first");
+
+            row.innerHTML = `
+              <div class="fdr-district-left">
+                <div class="fdr-district-name">${name}</div>
+              </div>
+              <div class="fdr-district-right">
+                <div class="fdr-district-right-header">
+                   <span></span>
+                   <span class="fdr-day-header">Today</span>
+                   <span class="fdr-day-header">Tmrw</span>
+                </div>
+                <div class="fdr-district-right-row">
+                  <span class="fdr-metric-label">Rating</span>
+                  <span class="pill ${getDangerClass(danger)}">${danger}</span>
+                  <span class="pill ${getDangerClass(dangerTom)}">${dangerTom}</span>
+                </div>
+                <div class="fdr-district-right-row">
+                  <span class="fdr-metric-label">Ban</span>
+                  <span class="pill ${getBanClass(ban)}">${ban}</span>
+                  <span class="pill ${getBanClass(banTom)}">${banTom}</span>
+                </div>
+              </div>
+            `;
+            list.appendChild(row);
+          });
+          container.innerHTML = "";
+          container.appendChild(list);
+        })
+        .catch(err => {
+          console.error(err);
+          container.innerHTML = `<span style="color:#ef4444">Unable to load FDR Feed.</span>`;
+        });
+    }
+  </script>
+</body>
+</html>

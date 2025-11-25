@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – Fire and Rescue NSW</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,13 +13,24 @@
       history.scrollRestoration = 'manual';
   }
 </script>
-  <aside class="sidebar">
+
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>FRNSW</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
     <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
 
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html" class="active">Fire and Rescue NSW</a>
       <a href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
@@ -71,52 +83,29 @@
     </header>
 
     <section class="card-grid">
-      <!-- FRNSW Overview -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚒 Fire and Rescue NSW – Overview</div>
           <div class="card-tag">Agency</div>
         </div>
         <div class="card-body">
-
           <div class="badge-row">
             <span class="badge badge-agency">Fire and Rescue NSW</span>
             <span class="badge badge-parent">State Fire &amp; Rescue</span>
           </div>
-
           <p>
             Fire and Rescue NSW (FRNSW) is the primary fire and emergency service for urban areas in New South Wales,
             responsible for protecting life, property and the environment in cities, larger towns and key industrial areas.
           </p>
-
           <div class="zone-subtitle">At a Glance</div>
           <ul>
             <li>Established in 1884 (formerly NSW Fire Brigades).</li>
             <li>Operates approximately 335 fire stations across NSW.</li>
             <li>Responds to more than 130,000 incidents each year.</li>
-            <li>Headquarters located at Greenacre in Sydney.</li>
-            <li>Motto: <em>Orta Recens Quam Pura Nites</em> – “Newly Risen, How Brightly We Shine”.</li>
-          </ul>
-
-          <div class="zone-subtitle">Core Responsibilities</div>
-          <ul>
-            <li>Urban and industrial firefighting.</li>
-            <li>Rescue operations – road crash, vertical rescue, building collapse and more.</li>
-            <li>Hazardous materials (HAZMAT) response – chemical, biological and radiological.</li>
-            <li>Support for bushfire, flood and major emergency operations across NSW.</li>
-            <li>Terrorism consequence management and disaster response.</li>
-          </ul>
-
-          <div class="zone-subtitle">Capability &amp; Community</div>
-          <ul>
-            <li>Diverse fleet including pumpers, tankers, HAZMAT, rescue and aerial appliances.</li>
-            <li>Career firefighters, retained (on-call) firefighters and Community Fire Unit volunteers.</li>
-            <li>Strong focus on community safety, fire education and prevention programs.</li>
           </ul>
         </div>
       </article>
 
-      <!-- Priority codes -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">⚠ Priority Codes</div>
@@ -143,7 +132,7 @@
                   <tr>
                     <td><span class="pill pill-white">White</span></td>
                     <td>Unreported incident discovered</td>
-                    <td>Crew finds a job while driving — medical, accident, or fire not yet reported to 000.</td>
+                    <td>Crew finds a job while driving — medical, accident, or fire not yet reported.</td>
                   </tr>
                   <tr>
                     <td><span class="pill pill-blue">Blue</span></td>
@@ -167,7 +156,6 @@
         </div>
       </article>
 
-      <!-- Status codes -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">📟 Status Codes</div>
@@ -198,42 +186,33 @@
           </div>
         </div>
       </article>
-<article class="card card-wide">
-  <div class="card-header">
-    <div class="card-title">🔍 Quick Lookup</div>
-    <div class="card-tag">Search</div>
-  </div>
-  <div class="card-body">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <input 
-        type="text" 
-        id="frnsw-search" 
-        placeholder="Search for a Station, Zone, or Appliance (e.g. 'Goulburn' or 'Pumper')..."
-        style="
-          flex: 1;
-          padding: 0.6rem 0.8rem;
-          border-radius: 8px;
-          border: 1px solid var(--border-subtle);
-          background: rgba(15, 23, 42, 0.6);
-          color: var(--text-main);
-          font-size: 0.9rem;
-        "
-      >
-      <span 
-        id="frnsw-search-counter" 
-        style="
-          color: var(--text-muted); 
-          font-size: 0.9rem; 
-          white-space: nowrap;
-          min-width: 80px;
-          text-align: right;
-        "
-      >
-        </span>
-    </div>
-  </div>
-</article>
-      <!-- Regional zones (single grouped card, same layout as your screenshot) -->
+
+      <article class="card card-wide">
+        <div class="card-header">
+          <div class="card-title">🔍 Quick Lookup</div>
+          <div class="card-tag">Search</div>
+        </div>
+        <div class="card-body">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <input 
+              type="text" 
+              id="frnsw-search" 
+              placeholder="Search for a Station, Zone, or Appliance..."
+              style="
+                flex: 1;
+                padding: 0.6rem 0.8rem;
+                border-radius: 8px;
+                border: 1px solid var(--border-subtle);
+                background: rgba(15, 23, 42, 0.6);
+                color: var(--text-main);
+                font-size: 0.9rem;
+              "
+            >
+            <span id="frnsw-search-counter" style="color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; min-width: 80px; text-align: right;"></span>
+          </div>
+        </div>
+      </article>
+
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🧭 Regional Zones</div>
@@ -242,7 +221,6 @@
         <div class="card-body">
           <p>Fire and Rescue NSW Regional zones grouped by direction.</p>
 
-          <!-- Regional North -->
           <div class="zone-subtitle">Regional North</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -275,7 +253,6 @@
             </div>
           </div>
 
-          <!-- Regional South -->
           <div class="zone-subtitle">Regional South</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -308,7 +285,6 @@
             </div>
           </div>
 
-          <!-- Regional West -->
           <div class="zone-subtitle">Regional West</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -343,7 +319,6 @@
         </div>
       </article>
 
-      <!-- Metropolitan zones (single grouped card, same layout as your screenshot) -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🏙 Metropolitan Zones</div>
@@ -352,7 +327,6 @@
         <div class="card-body">
           <p>Fire and Rescue NSW Metropolitan zones grouped by direction.</p>
 
-          <!-- Metro North -->
           <div class="zone-subtitle">Metropolitan North</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -385,7 +359,6 @@
             </div>
           </div>
 
-          <!-- Metro South -->
           <div class="zone-subtitle">Metropolitan South</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -418,7 +391,6 @@
             </div>
           </div>
 
-          <!-- Metro East -->
           <div class="zone-subtitle">Metropolitan East</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -451,7 +423,6 @@
             </div>
           </div>
 
-          <!-- Metro West -->
           <div class="zone-subtitle">Metropolitan West</div>
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -486,7 +457,6 @@
         </div>
       </article>
 
-      <!-- Appliance prefixes (same grouping as your original) -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚛 Appliance Prefixes</div>
@@ -495,17 +465,12 @@
         <div class="card-body">
           <p>Common Fire and Rescue NSW appliance prefixes, grouped by type.</p>
 
-          <!-- Pumpers -->
           <div class="zone-subtitle">Pumpers</div>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table frnsw-prefix-table">
                 <thead>
-                  <tr>
-                    <th>Prefix</th>
-                    <th>Meaning</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Prefix</th><th>Meaning</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>P</strong></td><td>Pumper</td><td>Standard urban pumper</td></tr>
@@ -518,17 +483,12 @@
             </div>
           </div>
 
-          <!-- Tankers -->
           <div class="zone-subtitle">Tankers</div>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table frnsw-prefix-table">
                 <thead>
-                  <tr>
-                    <th>Prefix</th>
-                    <th>Meaning</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Prefix</th><th>Meaning</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>T</strong></td><td>Tanker</td><td>Rural / village water carrier</td></tr>
@@ -541,17 +501,12 @@
             </div>
           </div>
 
-          <!-- Rescue -->
           <div class="zone-subtitle">Rescue</div>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table frnsw-prefix-table">
                 <thead>
-                  <tr>
-                    <th>Prefix</th>
-                    <th>Meaning</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Prefix</th><th>Meaning</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>R</strong></td><td>Rescue</td><td>Primary rescue appliance</td></tr>
@@ -561,17 +516,12 @@
             </div>
           </div>
 
-          <!-- Specialist & Support -->
           <div class="zone-subtitle">Specialist &amp; Support</div>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table frnsw-prefix-table">
                 <thead>
-                  <tr>
-                    <th>Prefix</th>
-                    <th>Meaning</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Prefix</th><th>Meaning</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>HA</strong></td><td>Aerial Appliance</td><td>Ladder / platform appliances</td></tr>
@@ -584,17 +534,12 @@
             </div>
           </div>
 
-          <!-- Command & IMT -->
           <div class="zone-subtitle">Command &amp; IMT</div>
           <div class="table-wrapper">
             <div class="table-scroll">
               <table class="table frnsw-prefix-table">
                 <thead>
-                  <tr>
-                    <th>Prefix</th>
-                    <th>Meaning</th>
-                    <th>Notes</th>
-                  </tr>
+                  <tr><th>Prefix</th><th>Meaning</th><th>Notes</th></tr>
                 </thead>
                 <tbody>
                   <tr><td><strong>CO</strong></td><td>Command</td><td>Zone / area command vehicles</td></tr>
@@ -613,88 +558,52 @@
 
     </section>
 
-<div class="main-footer-note">
-  Fire and Rescue NSW details are provided as an informal monitoring reference only and are not an official publication. ·
-  <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
-</div>
+    <div class="main-footer-note">
+      Fire and Rescue NSW details are provided as an informal monitoring reference only. ·
+      <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
+    </div>
   </main>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("frnsw-search");
-  const counter = document.getElementById("search-counter");
-  if (!searchInput || !counter) return;
-
-  searchInput.addEventListener("keyup", (e) => {
-    const term = e.target.value.toLowerCase();
-    const rows = document.querySelectorAll(".table tbody tr");
-    let matchCount = 0;
-
-    rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      
-      // Reset background
-      row.style.backgroundColor = "";
-      row.style.transition = "background-color 0.2s ease";
-
-      // Check match
-      if (term.length > 0 && text.includes(term)) {
-        row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; // Orange highlight
-        matchCount++;
-      }
-    });
-
-    // Update the counter text
-    if (term.length > 0) {
-      counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
-      counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; // Red if 0
-    } else {
-      counter.textContent = ""; // Clear text if search is empty
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
     }
-  });
-});
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const searchInput = document.getElementById("frnsw-search");
-  const counter = document.getElementById("frnsw-search-counter");
-  if (!searchInput || !counter) return;
 
-  searchInput.addEventListener("keyup", (e) => {
-    const term = e.target.value.toLowerCase();
-    // Selects rows from ALL tables (Zones, Metro, Appliances, etc.)
-    const rows = document.querySelectorAll(".table tbody tr");
-    let matchCount = 0;
+    document.addEventListener("DOMContentLoaded", () => {
+      const searchInput = document.getElementById("frnsw-search");
+      const counter = document.getElementById("frnsw-search-counter");
+      if (!searchInput || !counter) return;
 
-    rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      
-      // Reset background and transition
-      row.style.backgroundColor = "";
-      row.style.transition = "background-color 0.2s ease";
+      searchInput.addEventListener("keyup", (e) => {
+        const term = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll(".table tbody tr");
+        let matchCount = 0;
 
-      // Check for match
-      if (term.length > 0 && text.includes(term)) {
-        // Apply Orange Highlight
-        row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; 
-        
-        // Auto-scroll to the first match found
-        if (matchCount === 0) {
-            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        rows.forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.style.backgroundColor = "";
+          row.style.transition = "background-color 0.2s ease";
+
+          if (term.length > 0 && text.includes(term)) {
+            row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; 
+            if (matchCount === 0) {
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            matchCount++;
+          }
+        });
+
+        if (term.length > 0) {
+          counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
+          counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; 
+        } else {
+          counter.textContent = ""; 
         }
-        
-        matchCount++;
-      }
+      });
     });
-
-    // Update the counter text
-    if (term.length > 0) {
-      counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
-      counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; 
-    } else {
-      counter.textContent = ""; 
-    }
-  });
-});
-</script>
+  </script>
 </body>
 </html>
