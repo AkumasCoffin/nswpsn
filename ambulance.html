@@ -3,29 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <title>NSW PSN Quick Reference – NSW Ambulance</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+  <meta name="theme-color" content="#0f172a">
   <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
 <script>
   if ('scrollRestoration' in history) {
       history.scrollRestoration = 'manual';
   }
 </script>
-  <!-- Sidebar -->
-  <aside class="sidebar">
+
+  <div class="mobile-header">
+    <div class="mobile-logo">Forcequit <span>Ambulance</span></div>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+
+  <div class="menu-overlay" onclick="toggleSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
     <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
 
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
+      <a href="live.html" style="color: #fca5a5;">Live Data / Scanner</a>
       <a href="fire-and-rescue.html">Fire and Rescue NSW</a>
       <a class="active" href="ambulance.html">NSW Ambulance</a>
       <a href="rural-fire-service.html">NSW Rural Fire Service</a>
       <a href="aviation.html">Aviation &amp; Callsigns</a>
       <a href="links.html">Useful Links</a>
+    </nav>
+
+    <div class="sidebar-section-label">Legal</div>
+    <nav class="sidebar-nav">
+      <a href="terms.html">Terms &amp; Conditions</a>
+      <a href="privacy.html">Privacy Policy</a>
     </nav>
 
     <div class="sidebar-section-label">Live Scanner</div>
@@ -62,7 +78,6 @@
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="main">
 
     <header class="main-header">
@@ -75,7 +90,6 @@
 
     <section class="card-grid">
 
-      <!-- NSW Ambulance Overview -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🚑 NSW Ambulance – Overview</div>
@@ -119,7 +133,6 @@
         </div>
       </article>
 
-      <!-- CATEGORY CODES (CAT 1–4) -->
       <article class="card">
         <div class="card-header">
           <div class="card-title">📟 Category Codes</div>
@@ -167,7 +180,6 @@
         </div>
       </article>
 
-      <!-- CALL CODES -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">📋 Call Codes</div>
@@ -175,7 +187,7 @@
         </div>
 
         <div class="card-body">
-          <p>Common NSW Ambulance call codes and whether they are confirmed as still in use.</p>
+          <p>Common NSW Ambulance call codes.</p>
 
           <div class="table-wrapper">
             <div class="table-scroll">
@@ -204,7 +216,7 @@
                   <tr><td>Code 17</td><td>Drug overdose</td><td><span class="pill pill-yes">Yes</span></td></tr>
                   <tr><td>Code 20</td><td>Meal break</td><td><span class="pill pill-yes">Yes</span></td></tr>
                   <tr><td>Code 23</td><td>Infectious disease</td><td><span class="pill pill-yes">Yes</span></td></tr>
-                  <tr><td>Other codes</td><td>12,13,15,16,18,19,21,22,24,25,26</td><td><span class="pill pill-legacy">Not confirmed / legacy</span></td></tr>
+                  <tr><td>Other codes</td><td>12,13,15,16,18,19,21,22,24,25,26</td><td><span class="pill pill-legacy">Not confirmed</span></td></tr>
                 </tbody>
               </table>
             </div>
@@ -212,7 +224,6 @@
         </div>
       </article>
 
-      <!-- RADIO PHRASES -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">🎧 Common Radio Phrases</div>
@@ -247,7 +258,6 @@
         </div>
       </article>
 
-      <!-- TALKGROUP NOTES -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">📡 Talkgroups &amp; Monitoring Notes</div>
@@ -268,11 +278,20 @@
 
     </section>
 
-<div class="main-footer-note">
-  NSW Ambulance reference · Forcequit. ·
-  <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
-</div>
+    <div class="main-footer-note">
+      NSW Ambulance reference · Forcequit. ·
+      <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
+    </div>
 
   </main>
+  
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.menu-overlay');
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('active');
+    }
+  </script>
 </body>
 </html>
