@@ -208,13 +208,14 @@
 
               const sys = (u.system_name || u.agency || "").toString().toUpperCase();
               if (sys) {
-                let cls = "pill-agency"; 
+                let cls = "pill-agency"; // Default
+                
                 if (sys.includes("FIRE AND RESCUE")) cls = "pill-agency-frnsw";
+                else if (sys.includes("RURAL FIRE") || sys.includes(" RFS")) cls = "pill-agency-rfs";
                 else if (sys.includes("STATE EMERGENCY SERVICE") || sys.includes(" SES")) cls = "pill-agency-ses";
-                else if (sys.includes("RURAL FIRE SERVICE") || sys.includes(" RFS")) cls = "pill-agency-rfs";
-                else if (sys.includes("AMBULANCE SERVICE") || sys.includes("AMBULANCE")) cls = "pill-agency-amb";
+                else if (sys.includes("AMBULANCE")) cls = "pill-agency-amb";
                 else if (sys.includes("HOSPITAL")) cls = "pill-agency-hosp";
-                else if (sys.includes("UTILITY")) cls = "pill-agency-util";
+                else if (sys.includes("UTILITY") || sys.includes("OTHER")) cls = "pill-agency-util";
 
                 const p = document.createElement("span");
                 p.className = "pill " + cls;
@@ -309,10 +310,13 @@
               const sys = (g.system_name || g.agency || "").toString().toUpperCase();
               if (sys) {
                 let cls = "pill-agency";
+                
                 if (sys.includes("FIRE AND RESCUE")) cls = "pill-agency-frnsw";
-                else if (sys.includes("RURAL FIRE")) cls = "pill-agency-rfs";
-                else if (sys.includes("SES")) cls = "pill-agency-ses";
+                else if (sys.includes("RURAL FIRE") || sys.includes(" RFS")) cls = "pill-agency-rfs";
+                else if (sys.includes("STATE EMERGENCY SERVICE") || sys.includes(" SES")) cls = "pill-agency-ses";
                 else if (sys.includes("AMBULANCE")) cls = "pill-agency-amb";
+                else if (sys.includes("HOSPITAL")) cls = "pill-agency-hosp";
+                else if (sys.includes("UTILITY") || sys.includes("OTHER")) cls = "pill-agency-util";
                 
                 const p = document.createElement("span");
                 p.className = "pill " + cls;
@@ -471,11 +475,10 @@
           const list = document.createElement("div");
           list.className = "fdr-district-list";
 
-          districts.forEach((d, i) => {
+          districts.forEach((d) => {
             const name = d.getElementsByTagName("Name")[0].textContent;
             const danger = d.getElementsByTagName("DangerLevelToday")[0].textContent;
             const ban = d.getElementsByTagName("FireBanToday")[0].textContent;
-            
             const dangerTom = d.getElementsByTagName("DangerLevelTomorrow")[0].textContent;
             const banTom = d.getElementsByTagName("FireBanTomorrow")[0].textContent;
 
@@ -493,7 +496,6 @@
 
             const row = document.createElement("div");
             row.className = "fdr-district";
-            if (i === 0) row.classList.add("first");
 
             row.innerHTML = `
               <div class="fdr-district-left">

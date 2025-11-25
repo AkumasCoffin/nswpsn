@@ -1,6 +1,6 @@
 /* NSW PSN Quick Reference — Forcequit
    Style: dark, professional, subtle tactical UI
-   FINAL: Standardized Sidebar + Mobile + Full Colors
+   FINAL: Fixed Global Table Alignment
 */
 
 /* Reset & base */
@@ -149,9 +149,12 @@ a:hover { text-decoration: underline; }
   .sidebar.open { transform: translateX(0); }
   .main { margin-left: 0; padding: 5rem 1.2rem 2.5rem; width: 100%; }
   .card-grid { grid-template-columns: 1fr; }
-  .fdr-district { flex-direction: column; gap: 0.5rem; }
+  
+  /* Mobile Grid Overrides */
+  .fdr-district-list { grid-template-columns: 1fr; } 
+  .fdr-district { flex-direction: column; align-items: stretch; }
   .fdr-district-right { width: 100%; }
-  .fdr-district-right-header, .fdr-district-right-row { grid-template-columns: 80px 1fr 1fr; }
+  .fdr-district-right-header, .fdr-district-right-row { grid-template-columns: 60px 1fr 1fr; }
 }
 
 /* --- COMPONENTS --- */
@@ -170,9 +173,6 @@ a:hover { text-decoration: underline; }
 .card-body { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
 .card-link { display: inline-block; margin-top: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--accent); }
 
-/* Subheaders */
-.zone-subtitle { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-soft); margin: 0.9rem 0 0.35rem; }
-
 /* Buttons */
 .listen-btn-wide, .discord-btn-wide { display: inline-flex; align-items: center; justify-content: center; width: 100%; padding: 0.45rem 0.8rem; border-radius: var(--radius-pill); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; text-decoration: none; box-shadow: 0 6px 16px rgba(0,0,0,0.7); cursor: pointer; transition: transform 0.1s; }
 .listen-btn-wide { border: 1px solid var(--border-accent); background: radial-gradient(circle at 0 0, rgba(249,115,22,0.45), rgba(15,23,42,0.95)); color: #fff; }
@@ -181,19 +181,51 @@ a:hover { text-decoration: underline; }
 .discord-btn-wide { border: 1px solid #3b82f6; background: radial-gradient(circle at 0 0, rgba(59,130,246,0.55), rgba(15,23,42,0.98)); color: #fff; }
 .discord-btn-wide:hover { background: radial-gradient(circle at 0 0, rgba(59,130,246,0.75), rgba(15,23,42,1)); transform: translateY(-1px); }
 
-/* Tables */
+/* --- TABLES (FIXED GLOBAL ALIGNMENT) --- */
 .table-wrapper { margin-top: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); overflow: hidden; background: #0f172a; }
 .table-scroll { overflow-x: auto; }
-.table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.table th, .table td { padding: 0.5rem 0.7rem; border-bottom: 1px solid rgba(148,163,184,0.18); text-align: left; vertical-align: top; }
-.table th { background: #020617; position: sticky; top: 0; color: var(--text-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* General Table Styles (Applies to all tables unless overridden) */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  table-layout: fixed; /* Keeps all tables same width */
+}
+.table th, .table td {
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid rgba(148,163,184,0.18);
+  text-align: left;
+  vertical-align: top;
+}
+.table th {
+  background: #020617;
+  position: sticky;
+  top: 0;
+  color: var(--text-soft);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
 .table tr:last-child td { border-bottom: none; }
 
-/* FRNSW Table alignment */
-.frnsw-prefix-table { table-layout: fixed; width: 100%; }
+/* STANDARD 3-COLUMN ALIGNMENT (For Zones, Priorities, etc.) */
+.table th:nth-child(1), .table td:nth-child(1) { width: 16%; }  /* Code */
+.table th:nth-child(2), .table td:nth-child(2) { width: 28%; }  /* Zone / Summary */
+/* 3rd column takes remainder */
+
+/* SPECIALIZED TABLE OVERRIDES */
+
+/* FRNSW Fleet Table */
 .frnsw-prefix-table th:nth-child(1), .frnsw-prefix-table td:nth-child(1) { width: 16%; }
 .frnsw-prefix-table th:nth-child(2), .frnsw-prefix-table td:nth-child(2) { width: 30%; }
 .frnsw-prefix-table th:nth-child(3), .frnsw-prefix-table td:nth-child(3) { width: 54%; }
+
+/* Aviation Table (4 Columns) */
+.aircraft-table th:nth-child(1), .aircraft-table td:nth-child(1) { width: 16%; } /* Reg */
+.aircraft-table th:nth-child(2), .aircraft-table td:nth-child(2) { width: 18%; } /* Callsign */
+.aircraft-table th:nth-child(3), .aircraft-table td:nth-child(3) { width: 38%; } /* Agency */
+.aircraft-table th:nth-child(4), .aircraft-table td:nth-child(4) { width: 28%; } /* Type */
 
 /* Pills & Badges */
 .badge-row { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.8rem; }
@@ -234,14 +266,42 @@ a:hover { text-decoration: underline; }
 .active-units-more-btn:hover { background: rgba(30, 64, 175, 0.85); border-color: rgba(191, 219, 254, 0.9); }
 
 /* RFS FDR Layout */
-.fdr-district-list { display: flex; flex-direction: column; margin-top: 0.4rem; }
-.fdr-district { display: flex; align-items: flex-start; gap: 1.4rem; padding: 0.8rem 0; border-top: 1px solid rgba(148, 163, 184, 0.22); }
-.fdr-district.first { border-top: none; }
+.fdr-district-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); /* Grid logic fills width */
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.fdr-district {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-subtle); /* Full Card Border */
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.3);
+}
+
 .fdr-district-left { flex: 1; min-width: 0; }
 .fdr-district-name { font-weight: 600; font-size: 0.9rem; }
 .fdr-district-councils { margin-top: 0.15rem; font-size: 0.75rem; color: var(--text-soft); }
-.fdr-district-right { flex-shrink: 0; width: 350px; font-size: 0.78rem; }
-.fdr-district-right-header, .fdr-district-right-row { display: grid; grid-template-columns: 90px minmax(0, 1fr) minmax(0, 1fr); column-gap: 0.75rem; align-items: center; }
+
+.fdr-district-right {
+  width: 320px; /* Wide enough for "Catastrophic" */
+  flex-shrink: 0;
+  font-size: 0.78rem;
+}
+
+.fdr-district-right-header, .fdr-district-right-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 1fr; /* Labels on left, pills fill space */
+  column-gap: 0.5rem;
+  align-items: center;
+}
+
 .fdr-district-right-header { margin-bottom: 0.18rem; font-size: 0.72rem; text-transform: uppercase; color: var(--text-soft); }
 .fdr-day-header { display: flex; justify-content: center; width: 100%; }
 .fdr-district-right-row + .fdr-district-right-row { margin-top: 0.12rem; }
@@ -249,4 +309,5 @@ a:hover { text-decoration: underline; }
 .fdr-district-right-row span:nth-child(2), .fdr-district-right-row span:nth-child(3) { display: flex; }
 .fdr-district-right-row .pill { justify-content: center; width: 100%; text-align: center; padding: 0.1rem 0.25rem; }
 
-.main-footer-note { margin-top: 2rem; font-size: 0.78rem; color: var(--text-soft); }
+/* Footer */
+.main-footer-note { margin-top: 2rem; font-size: 0.78rem; color: var(--text-soft); text-align: center; }
