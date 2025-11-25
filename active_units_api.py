@@ -2,6 +2,7 @@
 """Active Units & Talkgroups API for Rdio-Scanner.
 
 - Reads SQLite DB defined in RDIO_SCANNER_DB environment variable.
+- Implements in-memory caching (30s) to reduce database disk I/O.
 - Exposes:
     * /api/active-units
     * /api/active-talkgroups
@@ -10,6 +11,7 @@
 import os
 import sqlite3
 import logging
+import time
 from datetime import datetime, timezone, timedelta
 
 from flask import Flask, jsonify
@@ -22,12 +24,16 @@ logging.basicConfig(
 )
 
 # Configuration
-# Default to desktop path if env var not set
 DB_PATH = os.environ.get("RDIO_SCANNER_DB", "/home/lynx/Desktop/rdio-scanner.db")
 MAX_AGE = timedelta(hours=1)
+CACHE_TIMEOUT = 30  # Seconds to hold data in memory
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# In-memory cache storage
+# Structure: { 'key': (timestamp, data) }
+_cache = {}
 
 
 def get_db():
@@ -36,8 +42,26 @@ def get_db():
     return conn
 
 
+def get_cached_data(key):
+    """Retrieve data from cache if it hasn't expired."""
+    entry = _cache.get(key)
+    if entry:
+        timestamp, data = entry
+        # Check if the data is fresh (younger than CACHE_TIMEOUT)
+        if time.time() - timestamp < CACHE_TIMEOUT:
+            return data
+    return None
+
+
+def set_cached_data(key, data):
+    """Save data to cache with the current timestamp."""
+    _cache[key] = (time.time(), data)
+
+
 def get_system_name_map(conn):
     """Return mapping systemId -> human readable name."""
+    # We can cache this longer or just let it run since it's fast.
+    # For simplicity, we won't cache this individually as it's part of the main queries.
     try:
         cur = conn.execute("PRAGMA table_info(rdioScannerSystems)")
         cols = [row[1] for row in cur.fetchall()]
@@ -61,6 +85,13 @@ def get_system_name_map(conn):
 
 @app.route("/api/active-units", methods=["GET"])
 def active_units():
+    # 1. Check Cache
+    cached = get_cached_data("active_units")
+    if cached:
+        # Return cached response immediately
+        return jsonify(cached)
+
+    # 2. If no cache, Query DB
     now = datetime.utcnow()
     cutoff = now - MAX_AGE
     cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
@@ -70,7 +101,6 @@ def active_units():
         conn = get_db()
         system_names = get_system_name_map(conn)
 
-        # Group by label so each labelled unit appears once.
         sql = '''
             SELECT
               MIN(c.source)      AS unit_id,
@@ -122,6 +152,9 @@ def active_units():
                 "agency": system_name,
             })
 
+        # 3. Save to Cache
+        set_cached_data("active_units", results)
+        
         return jsonify(results)
 
     except Exception:
@@ -134,6 +167,12 @@ def active_units():
 
 @app.route("/api/active-talkgroups", methods=["GET"])
 def active_talkgroups():
+    # 1. Check Cache
+    cached = get_cached_data("active_talkgroups")
+    if cached:
+        return jsonify(cached)
+
+    # 2. If no cache, Query DB
     now = datetime.utcnow()
     cutoff = now - MAX_AGE
     cutoff_str = cutoff.strftime("%Y-%m-%d %H:%M:%S")
@@ -143,7 +182,6 @@ def active_talkgroups():
         conn = get_db()
         system_names = get_system_name_map(conn)
 
-        # Group by label so each labelled talkgroup appears once.
         sql = '''
             SELECT
               MIN(c.talkgroup)   AS talkgroup_id,
@@ -194,6 +232,9 @@ def active_talkgroups():
                 "last_seen_iso": last_seen_iso,
                 "agency": system_name,
             })
+
+        # 3. Save to Cache
+        set_cached_data("active_talkgroups", results)
 
         return jsonify(results)
 
