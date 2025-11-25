@@ -78,6 +78,7 @@
           <div class="card-tag">Agency</div>
         </div>
         <div class="card-body">
+
           <div class="badge-row">
             <span class="badge badge-agency">Fire and Rescue NSW</span>
             <span class="badge badge-parent">State Fire &amp; Rescue</span>
@@ -197,7 +198,41 @@
           </div>
         </div>
       </article>
-
+<article class="card card-wide">
+  <div class="card-header">
+    <div class="card-title">🔍 Quick Lookup</div>
+    <div class="card-tag">Search</div>
+  </div>
+  <div class="card-body">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <input 
+        type="text" 
+        id="frnsw-search" 
+        placeholder="Search for a Station, Zone, or Appliance (e.g. 'Goulburn' or 'Pumper')..."
+        style="
+          flex: 1;
+          padding: 0.6rem 0.8rem;
+          border-radius: 8px;
+          border: 1px solid var(--border-subtle);
+          background: rgba(15, 23, 42, 0.6);
+          color: var(--text-main);
+          font-size: 0.9rem;
+        "
+      >
+      <span 
+        id="frnsw-search-counter" 
+        style="
+          color: var(--text-muted); 
+          font-size: 0.9rem; 
+          white-space: nowrap;
+          min-width: 80px;
+          text-align: right;
+        "
+      >
+        </span>
+    </div>
+  </div>
+</article>
       <!-- Regional zones (single grouped card, same layout as your screenshot) -->
       <article class="card card-wide">
         <div class="card-header">
@@ -583,5 +618,83 @@
   <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a>
 </div>
   </main>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("frnsw-search");
+  const counter = document.getElementById("search-counter");
+  if (!searchInput || !counter) return;
+
+  searchInput.addEventListener("keyup", (e) => {
+    const term = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll(".table tbody tr");
+    let matchCount = 0;
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      
+      // Reset background
+      row.style.backgroundColor = "";
+      row.style.transition = "background-color 0.2s ease";
+
+      // Check match
+      if (term.length > 0 && text.includes(term)) {
+        row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; // Orange highlight
+        matchCount++;
+      }
+    });
+
+    // Update the counter text
+    if (term.length > 0) {
+      counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
+      counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; // Red if 0
+    } else {
+      counter.textContent = ""; // Clear text if search is empty
+    }
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const searchInput = document.getElementById("frnsw-search");
+  const counter = document.getElementById("frnsw-search-counter");
+  if (!searchInput || !counter) return;
+
+  searchInput.addEventListener("keyup", (e) => {
+    const term = e.target.value.toLowerCase();
+    // Selects rows from ALL tables (Zones, Metro, Appliances, etc.)
+    const rows = document.querySelectorAll(".table tbody tr");
+    let matchCount = 0;
+
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      
+      // Reset background and transition
+      row.style.backgroundColor = "";
+      row.style.transition = "background-color 0.2s ease";
+
+      // Check for match
+      if (term.length > 0 && text.includes(term)) {
+        // Apply Orange Highlight
+        row.style.backgroundColor = "rgba(249, 115, 22, 0.35)"; 
+        
+        // Auto-scroll to the first match found
+        if (matchCount === 0) {
+            row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        matchCount++;
+      }
+    });
+
+    // Update the counter text
+    if (term.length > 0) {
+      counter.textContent = matchCount === 1 ? "1 match" : `${matchCount} matches`;
+      counter.style.color = matchCount > 0 ? "var(--text-main)" : "#ef4444"; 
+    } else {
+      counter.textContent = ""; 
+    }
+  });
+});
+</script>
 </body>
 </html>
