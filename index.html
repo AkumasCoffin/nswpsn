@@ -5,25 +5,20 @@
   <title>NSW PSN Quick Reference – Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- Basic SEO description -->
   <meta name="description" content="Unofficial NSW Public Safety Network (PSN) quick reference for Fire and Rescue NSW, NSW Rural Fire Service, NSW Ambulance and aviation units – maintained by Forcequit for scanning & radio monitoring communities.">
 
-  <!-- Open Graph / Discord embed -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="NSW PSN Quick Reference">
   <meta property="og:title" content="NSW PSN Quick Reference – Forcequit">
   <meta property="og:description" content="Unofficial Quick reference handbook: FRNSW, NSW RFS, NSW Ambulance and aviation callsigns, plus live RFS incident + fire danger info.">
   <meta property="og:url" content="https://nswpsn.forcequit.xyz/">
-  <!-- Optional: set this to a real preview image you host -->
   <meta property="og:image" content="https://nswpsn.forcequit.xyz/og-card.png">
 
-  <!-- Twitter card (also used by some clients) -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="NSW PSN Quick Reference – Forcequit">
   <meta name="twitter:description" content="Unofficial NSW PSN monitoring reference: FRNSW, NSW RFS, NSW Ambulance and aviation callsigns, plus live RFS incident + fire danger info.">
   <meta name="twitter:image" content="https://nswpsn.forcequit.xyz/og-card.png">
 
-  <!-- Embed / browser theme color -->
   <meta name="theme-color" content="#020617">
 
   <link rel="stylesheet" href="styles.css" />
@@ -97,7 +92,6 @@
 
     <section class="card-grid">
 
-      <!-- NSW RFS Major Incidents (live feed) -->
       <article class="card card-wide" id="rfs-major-incidents-card">
         <div class="card-header">
           <div class="card-title">NSW RFS Major Incidents (Live)</div>
@@ -121,7 +115,6 @@
       </article>
 
 
-      <!-- Active Units from Rdio Scanner -->
       <article class="card card-wide" id="active-units-card">
         <div class="card-header">
           <div class="card-title">Active Units (last 60 minutes)</div>
@@ -145,7 +138,6 @@
         </div>
       </article>
 
-      <!-- Active Talkgroups from Rdio Scanner -->
       <article class="card card-wide" id="active-talkgroups-card">
         <div class="card-header">
           <div class="card-title">Active Talkgroups (last 60 minutes)</div>
@@ -169,7 +161,6 @@
         </div>
       </article>
 
-      <!-- NSW Fire Danger Ratings & Fire Bans (today & tomorrow) -->
       <article class="card card-wide" id="rfs-fdr-toban-card">
         <div class="card-header">
           <div class="card-title">NSW Fire Danger Ratings &amp; Fire Bans</div>
@@ -192,7 +183,6 @@
         </div>
       </article>
 
-      <!-- BOM Severe Weather & Flood Warnings (NSW/ACT) -->
       <article class="card card-wide" id="bom-warnings-card">
         <div class="card-header">
           <div class="card-title">BOM Weather &amp; Flood Warnings – NSW/ACT</div>
@@ -224,7 +214,6 @@
         </div>
       </article>
 
-      <!-- FRNSW -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">Fire and Rescue NSW</div>
@@ -247,7 +236,6 @@
         </div>
       </article>
 
-      <!-- NSW RFS -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">NSW Rural Fire Service</div>
@@ -270,7 +258,6 @@
         </div>
       </article>
 
-      <!-- NSW Ambulance -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">NSW Ambulance</div>
@@ -292,7 +279,6 @@
         </div>
       </article>
 
-      <!-- Aviation -->
       <article class="card card-wide">
         <div class="card-header">
           <div class="card-title">Aviation &amp; Callsigns</div>
@@ -316,13 +302,27 @@
 </div>
   </main>
 
-  <!-- Live feed scripts -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      // 1. Load data immediately on page load
       loadActiveUnits();
       loadActiveTalkgroups();
       loadRfsMajorIncidents();
       loadRfsFireDangerToban();
+
+      // 2. Set up Auto-Refresh Timers
+      
+      // Refresh Units & Talkgroups every 60 seconds (1 minute)
+      setInterval(() => {
+        loadActiveUnits();
+        loadActiveTalkgroups();
+      }, 30000);
+
+      // Refresh RFS Feeds every 5 minutes (300,000 ms) as they update less frequently
+      setInterval(() => {
+        loadRfsMajorIncidents();
+        loadRfsFireDangerToban();
+      }, 900000);
     });
 
 
