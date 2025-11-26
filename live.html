@@ -271,7 +271,7 @@
         });
     }
 
-    // 2. ACTIVE TALKGROUPS
+// 2. ACTIVE TALKGROUPS
     function loadActiveTalkgroups() {
       const container = document.getElementById("active-talkgroups-list");
       if (!container) return;
@@ -329,6 +329,15 @@
                 p.textContent = g.system_name || g.agency;
                 right.appendChild(p);
               }
+
+              // --- RESTORED CALL COUNT ---
+              if (g.seen_count) {
+                const c = document.createElement("span");
+                c.className = "pill pill-soft";
+                c.textContent = g.seen_count + " calls";
+                right.appendChild(c);
+              }
+              // ---------------------------
 
               const t = document.createElement("span");
               t.className = "pill pill-soft";
