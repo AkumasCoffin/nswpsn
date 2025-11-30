@@ -41,6 +41,31 @@
     .login-btn { width: 100%; padding: 0.8rem; background: #f97316; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; margin-top: 1rem; transition: background 0.2s; }
     .login-btn:hover { background: #ea580c; }
     #login-error { color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; min-height: 1.2em; }
+    
+    /* AGENCY PILL CHECKBOX STYLES */
+    .pill-checkbox {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 0.5rem 1rem; border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.4);
+      color: #94a3b8; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease; user-select: none;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .pill-checkbox:hover { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.4); }
+    .pill-checkbox input { display: none; }
+    
+    /* Checked State */
+    .pill-checkbox:has(input:checked) {
+      background: #3b82f6; color: #fff; border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+    }
+    /* Agency Specific Colors */
+    .pill-checkbox:has(input[value="RFS"]:checked) { background: #f97316; border-color: #f97316; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
+    .pill-checkbox:has(input[value="FRNSW"]:checked) { background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+    .pill-checkbox:has(input[value="NSWAS"]:checked) { background: #3b82f6; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .pill-checkbox:has(input[value="SES"]:checked) { background: #eab308; border-color: #eab308; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); color: #fff; }
+    .pill-checkbox:has(input[value="Police"]:checked) { background: #3b82f6; border-color: #3b82f6; }
+    .pill-checkbox:has(input[value="VRA"]:checked) { background: #fff; border-color: #fff; color: #000; }
   </style>
 </head>
 <body>
@@ -93,23 +118,51 @@
         <div class="form-group" style="position:relative; margin-bottom:1rem;"><label class="form-label">Jump to Location</label><input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off"><div id="search-results" class="search-results"></div></div>
         <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary btn-block" id="btn-add-mode" onclick="toggleAddMode()">+ Add Pin</button><button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button></div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin-bottom:1.5rem;">
+        
         <div id="selection-editor" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;"><h4 style="margin:0; color:var(--accent);">Edit Incident</h4><span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span></div>
           <input type="hidden" id="edit-id">
           <div class="form-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
           
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
-            <div class="form-group"><label class="form-label">Status</label><input type="text" id="edit-status" class="form-input" placeholder="e.g. Going"></div>
+            <div class="form-group"><label class="form-label">Status</label><input type="text" id="edit-status" class="form-input" placeholder="e.g. undercontrol"></div>
             <div class="form-group"><label class="form-label">Size</label><input type="text" id="edit-size" class="form-input" placeholder="e.g. 5 ha"></div>
           </div>
 
           <div class="form-group"><label class="form-label">Auto-Remove In...</label><select id="edit-expiry" class="form-select" style="border-color:var(--accent);"><option value="0">Keep Current Expiry</option><option value="1">1 Hour</option><option value="2">2 Hours</option><option value="4">4 Hours</option><option value="12">12 Hours</option><option value="24" selected>24 Hours (Default)</option><option value="48">48 Hours</option></select></div>
           <div class="form-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
-          <div class="form-group"><label class="form-label">Responding Agencies</label><div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes"><label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label><label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label><label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label><label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label><label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label><label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label></div></div>
+          
+          <div class="form-group">
+            <label class="form-label">Responding Agencies</label>
+            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes">
+              <label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label>
+              <label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label>
+              <label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label>
+              <label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label>
+              <label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label>
+              <label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label>
+            </div>
+          </div>
+
           <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary" onclick="saveIncident()">Save Changes</button><button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button></div>
-          <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;"><label class="form-label">Add Update Log</label><textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px;"></textarea><button class="btn btn-secondary btn-block" style="margin-top:0.5rem;" onclick="addUpdate()">Post Update</button></div>
+          
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;">
+            <button class="btn btn-primary" onclick="saveIncident()">Save Changes</button>
+            <button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button>
+          </div>
+          
+          <div style="margin-bottom:1.5rem;">
+            <label class="form-label">Existing Updates</label>
+            <div id="existing-updates-list" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
+          </div>
+
+          <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
+            <label class="form-label">Add Update Log</label>
+            <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px;"></textarea>
+            <button class="btn btn-secondary btn-block" style="margin-top:0.5rem;" onclick="addUpdate()">Post Update</button>
+          </div>
         </div>
+        
         <div id="instruction-text" style="color:var(--text-soft); font-size:0.9rem; text-align:center; margin-top:2rem;">Select a pin to edit<br>or click <strong>+ Add Pin</strong> to create new.</div>
       </div>
     </div>
@@ -192,7 +245,7 @@
           const title = prompt("Enter Title for new Incident:");
           if(title) {
             const expireTime = new Date(Date.now() + 24 * 3600000);
-            const { error } = await supabase.from('incidents').insert([{ title: title, lat: e.latlng.lat, lng: e.latlng.lng, type: [], description: '', status: 'Going', size: '-', responding_agencies: [], expires_at: expireTime }]);
+            const { error } = await supabase.from('incidents').insert([{ title: title, lat: e.latlng.lat, lng: e.latlng.lng, type: [], description: '', status: 'ongoing', size: 'N/A', responding_agencies: [], expires_at: expireTime }]);
             if(error) alert(error.message); else { toggleAddMode(); loadIncidents(); }
           }
         } else { resetEditor(); }
@@ -258,10 +311,14 @@
       const agencyInputs = document.querySelectorAll('#agency-checkboxes input'); agencyInputs.forEach(cb => cb.checked = false);
       if (inc.responding_agencies) { inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; }); }
       map.panTo([inc.lat, inc.lng]);
+      
+      // LOAD EXISTING UPDATES
+      loadUpdateLogs(inc.id);
     }
 
     function resetEditor() { selectedId = null; document.getElementById('selection-editor').style.display = 'none'; document.getElementById('instruction-text').style.display = 'block'; }
     function toggleAddMode() { addMode = !addMode; const btn = document.getElementById('btn-add-mode'); if(addMode) { btn.innerText = "Click Map to Place Pin"; btn.style.background = "#22c55e"; btn.style.color = "#fff"; document.getElementById('map').style.cursor = "crosshair"; } else { btn.innerText = "+ Add Pin"; btn.style.background = ""; btn.style.color = ""; document.getElementById('map').style.cursor = ""; } }
+    
     async function saveIncident() {
       if(!selectedId) return;
       const agencies = Array.from(document.querySelectorAll('#agency-checkboxes input:checked')).map(cb => cb.value);
@@ -280,8 +337,93 @@
       const { error } = await supabase.from('incidents').update(updates).eq('id', selectedId);
       if(error) alert(error.message); else { alert("Saved."); loadIncidents(); }
     }
+    
     async function deleteIncident() { if(!selectedId || !confirm("Delete?")) return; const { error } = await supabase.from('incidents').delete().eq('id', selectedId); if(!error) { resetEditor(); loadIncidents(); } else { alert(error.message); } }
-    async function addUpdate() { if(!selectedId) return; const msg = document.getElementById('new-update-msg').value; if(!msg) return; const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); if(error) alert(error.message); else { document.getElementById('new-update-msg').value = ''; alert("Update posted."); } }
+    
+    async function addUpdate() { 
+      if(!selectedId) return; 
+      const msg = document.getElementById('new-update-msg').value; 
+      if(!msg) return; 
+      const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); 
+      if(error) {
+        alert(error.message); 
+      } else { 
+        document.getElementById('new-update-msg').value = ''; 
+        alert("Update posted."); 
+        loadUpdateLogs(selectedId); // REFRESH LOGS
+      } 
+    }
+    
+    // --- INCIDENT LOG FUNCTIONS ---
+    async function loadUpdateLogs(incidentId) {
+      const container = document.getElementById('existing-updates-list');
+      container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem;">Loading logs...</div>';
+
+      const { data: updates, error } = await supabase
+        .from('incident_updates')
+        .select('*')
+        .eq('incident_id', incidentId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        container.innerHTML = `<div style="color:#ef4444; font-size:0.8rem;">Error loading logs.</div>`;
+        return;
+      }
+
+      if (!updates || updates.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-soft); font-size:0.8rem; font-style:italic;">No updates found.</div>`;
+        return;
+      }
+
+      container.innerHTML = updates.map(log => `
+        <div style="background:rgba(0,0,0,0.2); padding:0.8rem; border-radius:6px; border:1px solid var(--border-subtle);">
+          <div style="font-size:0.7rem; color:var(--text-soft); margin-bottom:0.4rem; display:flex; justify-content:space-between;">
+            <span>${new Date(log.created_at).toLocaleString()}</span>
+            <span style="font-family:monospace; opacity:0.5;">ID: ${log.id}</span>
+          </div>
+          <textarea id="log-content-${log.id}" class="form-textarea" style="min-height:60px; font-size:0.85rem; margin-bottom:0.5rem;">${log.message}</textarea>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn btn-primary" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="saveUpdateLog('${log.id}', this)">Save</button>
+            <button class="btn btn-danger" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="deleteUpdateLog('${log.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function saveUpdateLog(logId, btn) {
+      const newContent = document.getElementById(`log-content-${logId}`).value;
+      const originalText = btn.innerText;
+      btn.innerText = "...";
+      
+      const { error } = await supabase
+        .from('incident_updates')
+        .update({ message: newContent })
+        .eq('id', logId);
+
+      if (error) {
+        alert("Error updating log: " + error.message);
+        btn.innerText = originalText;
+      } else {
+        btn.innerText = "Saved!";
+        setTimeout(() => btn.innerText = "Save", 2000);
+      }
+    }
+
+    async function deleteUpdateLog(logId) {
+      if (!confirm("Are you sure you want to delete this log entry?")) return;
+      const { error } = await supabase
+        .from('incident_updates')
+        .delete()
+        .eq('id', logId);
+
+      if (error) {
+        alert("Error deleting log: " + error.message);
+      } else {
+        loadUpdateLogs(selectedId);
+      }
+    }
+    // ----------------------------
+
     function refreshData() { loadIncidents(); }
     
     const searchInput = document.getElementById('address-search');
