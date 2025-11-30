@@ -27,6 +27,35 @@
     .btn-toggle:hover { color: #fff; background: rgba(255,255,255,0.1); }
     .btn-toggle.active.map-type-btn { border: 1px solid #f97316; color: #fdba74; }
     .btn-toggle:not(.active) { opacity: 0.6; }
+    
+    /* LAYER TOGGLES (Added for RFS Button) */
+    .layer-toggles { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 800; display: flex; gap: 10px; background: rgba(15, 23, 42, 0.9); padding: 6px 12px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .dot-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .btn-toggle.active .dot-indicator { box-shadow: 0 0 8px currentColor; }
+    .btn-toggle.active#btn-rfs { border: 1px solid #ef4444; color: #fca5a5; }
+
+    /* AGENCY CHECKBOX PILLS */
+    .pill-checkbox {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+      border-radius: 20px; border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.75rem;
+      cursor: pointer; user-select: none; transition: all 0.2s;
+    }
+    .pill-checkbox:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.4); color: #fff; }
+    .pill-checkbox input { accent-color: var(--accent); }
+    .pill-checkbox:has(input:checked) { background: rgba(249, 115, 22, 0.2); border-color: #f97316; color: #fdba74; }
+
+    /* PULSE ANIMATION */
+    .rfs-pulse {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+      animation: pulse-red 2s infinite;
+      border-radius: 50%;
+    }
+    @keyframes pulse-red {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 4px 10px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
 
     /* LOGIN & FORM */
     #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
@@ -41,31 +70,6 @@
     .login-btn { width: 100%; padding: 0.8rem; background: #f97316; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; margin-top: 1rem; transition: background 0.2s; }
     .login-btn:hover { background: #ea580c; }
     #login-error { color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; min-height: 1.2em; }
-    
-    /* AGENCY PILL CHECKBOX STYLES */
-    .pill-checkbox {
-      display: inline-flex; align-items: center; justify-content: center;
-      padding: 0.5rem 1rem; border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.2); background: rgba(15, 23, 42, 0.4);
-      color: #94a3b8; font-size: 0.75rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s ease; user-select: none;
-      text-transform: uppercase; letter-spacing: 0.05em;
-    }
-    .pill-checkbox:hover { background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.4); }
-    .pill-checkbox input { display: none; }
-    
-    /* Checked State */
-    .pill-checkbox:has(input:checked) {
-      background: #3b82f6; color: #fff; border-color: #3b82f6;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
-    }
-    /* Agency Specific Colors */
-    .pill-checkbox:has(input[value="RFS"]:checked) { background: #f97316; border-color: #f97316; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
-    .pill-checkbox:has(input[value="FRNSW"]:checked) { background: #ef4444; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
-    .pill-checkbox:has(input[value="NSWAS"]:checked) { background: #3b82f6; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-    .pill-checkbox:has(input[value="SES"]:checked) { background: #eab308; border-color: #eab308; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3); color: #fff; }
-    .pill-checkbox:has(input[value="Police"]:checked) { background: #3b82f6; border-color: #3b82f6; }
-    .pill-checkbox:has(input[value="VRA"]:checked) { background: #fff; border-color: #fff; color: #000; }
   </style>
 </head>
 <body>
@@ -108,6 +112,11 @@
   <main class="main" id="editor-layout-root">
     <div class="map-container">
       <div id="map"></div>
+      
+      <div class="layer-toggles">
+        <button id="btn-rfs" class="btn-toggle" onclick="toggleRfsLayer()"><span class="dot-indicator" style="background:#ef4444;"></span> Show RFS Feed</button>
+      </div>
+
       <div class="map-type-controls">
         <button class="btn-toggle map-type-btn active" id="btn-type-dark" onclick="setMapType('dark')">Dark</button>
         <button class="btn-toggle map-type-btn" id="btn-type-sat" onclick="setMapType('sat')">Sat</button>
@@ -118,51 +127,54 @@
         <div class="form-group" style="position:relative; margin-bottom:1rem;"><label class="form-label">Jump to Location</label><input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off"><div id="search-results" class="search-results"></div></div>
         <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary btn-block" id="btn-add-mode" onclick="toggleAddMode()">+ Add Pin</button><button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button></div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin-bottom:1.5rem;">
-        
         <div id="selection-editor" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;"><h4 style="margin:0; color:var(--accent);">Edit Incident</h4><span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span></div>
           <input type="hidden" id="edit-id">
           <div class="form-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
           
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
-            <div class="form-group"><label class="form-label">Status</label><input type="text" id="edit-status" class="form-input" placeholder="e.g. undercontrol"></div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select id="edit-status" class="form-select">
+                <option value="Going">Going</option>
+                <option value="In Route">In Route</option>
+                <option value="On Scene">On Scene</option>
+                <option value="Out of Control">Out of Control</option>
+                <option value="Being Controlled">Being Controlled</option>
+                <option value="Emergency Warning">Emergency Warning</option>
+                <option value="Watch and Act">Watch and Act</option>
+                <option value="Advice">Advice</option>
+                <option value="Under Control">Under Control</option>
+                <option value="Pending">Pending</option>
+                <option value="Investigation">Investigation</option>
+                <option value="Monitor">Monitor</option>
+                <option value="Patrol">Patrol</option>
+                <option value="Off Scene">Off Scene</option>
+                <option value="Safe">Safe</option>
+              </select>
+            </div>
             <div class="form-group"><label class="form-label">Size</label><input type="text" id="edit-size" class="form-input" placeholder="e.g. 5 ha"></div>
           </div>
 
           <div class="form-group"><label class="form-label">Auto-Remove In...</label><select id="edit-expiry" class="form-select" style="border-color:var(--accent);"><option value="0">Keep Current Expiry</option><option value="1">1 Hour</option><option value="2">2 Hours</option><option value="4">4 Hours</option><option value="12">12 Hours</option><option value="24" selected>24 Hours (Default)</option><option value="48">48 Hours</option></select></div>
           <div class="form-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
+          <div class="form-group"><label class="form-label">Responding Agencies</label><div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes"><label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label><label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label><label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label><label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label><label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label><label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label></div></div>
+          <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary" onclick="saveIncident()">Save Changes</button><button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button></div>
           
-          <div class="form-group">
-            <label class="form-label">Responding Agencies</label>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes">
-              <label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label>
-              <label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label>
-              <label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label>
-              <label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label>
-              <label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label>
-              <label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label>
+          <div class="form-group" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+            <label class="form-label">Incident Logs</label>
+            <div id="editor-logs-container" style="max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle); border-radius: 6px; margin-bottom:0.8rem;">
+              <div style="padding:1rem; color:var(--text-soft); font-size:0.8rem;">Loading...</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03); padding:0.8rem; border-radius:8px;">
+              <label class="form-label" style="margin-bottom:0.4rem;">New Log Entry</label>
+              <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:50px; font-size:0.85rem; margin-bottom:0.5rem;"></textarea>
+              <button class="btn btn-secondary btn-block" style="padding:0.4rem;" onclick="addUpdate()">Post Update</button>
             </div>
           </div>
 
-          <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
-          
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;">
-            <button class="btn btn-primary" onclick="saveIncident()">Save Changes</button>
-            <button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button>
-          </div>
-          
-          <div style="margin-bottom:1.5rem;">
-            <label class="form-label">Existing Updates</label>
-            <div id="existing-updates-list" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
-          </div>
-
-          <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
-            <label class="form-label">Add Update Log</label>
-            <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px;"></textarea>
-            <button class="btn btn-secondary btn-block" style="margin-top:0.5rem;" onclick="addUpdate()">Post Update</button>
-          </div>
         </div>
-        
         <div id="instruction-text" style="color:var(--text-soft); font-size:0.9rem; text-align:center; margin-top:2rem;">Select a pin to edit<br>or click <strong>+ Add Pin</strong> to create new.</div>
       </div>
     </div>
@@ -180,6 +192,7 @@
     const topoBase = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: 'Map data: &copy; OpenStreetMap | Map style: &copy; OpenTopoMap', maxZoom: 17 });
 
     let map, markers = {};
+    const rfsLayer = L.layerGroup();
     let addMode = false;
     let selectedId = null;
 
@@ -245,7 +258,7 @@
           const title = prompt("Enter Title for new Incident:");
           if(title) {
             const expireTime = new Date(Date.now() + 24 * 3600000);
-            const { error } = await supabase.from('incidents').insert([{ title: title, lat: e.latlng.lat, lng: e.latlng.lng, type: [], description: '', status: 'ongoing', size: 'N/A', responding_agencies: [], expires_at: expireTime }]);
+            const { error } = await supabase.from('incidents').insert([{ title: title, lat: e.latlng.lat, lng: e.latlng.lng, type: [], description: '', status: 'Going', size: '-', responding_agencies: [], expires_at: expireTime }]);
             if(error) alert(error.message); else { toggleAddMode(); loadIncidents(); }
           }
         } else { resetEditor(); }
@@ -262,6 +275,56 @@
       else if (type === 'topo') { map.addLayer(topoBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-topo').classList.add('active'); }
     }
 
+    // --- RFS FEED ---
+    async function toggleRfsLayer() {
+      const btn = document.getElementById('btn-rfs');
+      if(map.hasLayer(rfsLayer)) {
+        map.removeLayer(rfsLayer);
+        btn.classList.remove('active');
+      } else {
+        map.addLayer(rfsLayer);
+        btn.classList.add('active');
+        await loadRfsData();
+      }
+    }
+
+    async function loadRfsData() {
+      try {
+        const res = await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.xml");
+        const text = await res.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, "text/xml");
+        const items = xml.querySelectorAll("item");
+        
+        rfsLayer.clearLayers();
+        
+        items.forEach(item => {
+            const title = item.querySelector("title").textContent;
+            const desc = item.querySelector("description").textContent;
+            const pointStr = item.querySelector("point") ? item.querySelector("point").textContent : null;
+            
+            if (pointStr) {
+                const [lat, lng] = pointStr.split(' ').map(Number);
+                const al = desc.toLowerCase();
+                
+                let color = '#000000'; let pulseClass = ''; let shadowStyle = '';
+                if(al.includes('emergency')) { color = '#ef4444'; pulseClass = 'rfs-pulse'; } 
+                else if(al.includes('watch')) { color = '#f97316'; shadowStyle = 'box-shadow:0 0 10px #f97316;'; }
+                else if(al.includes('advice')) { color = '#3b82f6'; shadowStyle = 'box-shadow:0 0 8px #3b82f6;'; } 
+                else { shadowStyle = 'box-shadow:0 0 8px #ef4444;'; }
+
+                const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; ${shadowStyle}"></div>`;
+                const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
+                
+                L.marker([lat, lng], { icon: icon, interactive: true })
+                 .bindTooltip(`<strong>${title}</strong><br>RFS Feed (Read-Only)`, { direction: 'top', offset: [0,-10] })
+                 .addTo(rfsLayer);
+            }
+        });
+      } catch (e) { console.error("RFS Load Error", e); alert("Failed to load RFS data."); }
+    }
+    // ----------------
+
     async function loadIncidents() {
       const { data: incidents } = await supabase.from('incidents').select('*');
       Object.values(markers).forEach(m => map.removeLayer(m)); markers = {};
@@ -270,7 +333,38 @@
           const isExpired = new Date(inc.expires_at) < new Date();
           let style = getPinStyle(inc);
           if(isExpired) { style.background = '#475569'; style.glow = '#475569'; }
-          const iconHtml = `<div style="background:${style.background}; width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px ${style.glow}, 0 0 20px ${style.glow};"></div>`;
+          
+          const status = (inc.status || '').toLowerCase();
+          let pulseClass = '';
+          let shadowStyle = ''; 
+
+          if (status.includes('emergency')) {
+            pulseClass = 'rfs-pulse'; 
+          } else if (status.includes('out of control')) {
+            shadowStyle = 'box-shadow: 0 0 10px #ef4444; border-color: #ef4444;';
+          } else if (status.includes('watch')) {
+            shadowStyle = 'box-shadow: 0 0 10px #f97316; border-color: #f97316;'; 
+          } else if (status.includes('being controlled')) {
+            shadowStyle = 'box-shadow: 0 0 10px #eab308; border-color: #eab308;'; // Yellow
+          } else if (status.includes('advice')) {
+            shadowStyle = 'box-shadow: 0 0 8px #3b82f6; border-color: #3b82f6;'; 
+          } else if (status.includes('monitor') || status.includes('investigation')) {
+            shadowStyle = 'box-shadow: 0 0 8px #a855f7; border-color: #a855f7;'; // Purple
+          } else if (status.includes('contained') || status.includes('control') || status.includes('safe') || status.includes('patrol')) {
+            shadowStyle = 'box-shadow: 0 0 8px #22c55e; border-color: #22c55e;'; 
+          } else if (status.includes('pending')) {
+            shadowStyle = 'box-shadow: 0 0 8px #94a3b8; border-color: #94a3b8;'; // Grey
+          } else if (status.includes('on scene')) {
+            shadowStyle = 'box-shadow: 0 0 10px #06b6d4; border-color: #06b6d4;'; // Cyan
+          } else if (status.includes('in route')) {
+            shadowStyle = 'box-shadow: 0 0 10px #d946ef; border-color: #d946ef;'; // Magenta
+          } else if (status.includes('off scene')) {
+            shadowStyle = 'box-shadow: 0 0 8px #64748b; border-color: #64748b;'; // Slate
+          } else {
+            shadowStyle = `box-shadow: 0 0 10px ${style.glow};`;
+          }
+          
+          const iconHtml = `<div class="${pulseClass}" style="background:${style.background}; width:24px; height:24px; border-radius:50%; border:3px solid #fff; ${shadowStyle}"></div>`;
           const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [30,30], iconAnchor: [15,15] });
           const marker = L.marker([inc.lat, inc.lng], { icon: icon, draggable: true }).addTo(map);
           marker.on('click', (e) => { L.DomEvent.stopPropagation(e); selectIncident(inc); });
@@ -301,24 +395,86 @@
       document.getElementById('edit-title').value = inc.title;
       document.getElementById('edit-desc').value = inc.description || '';
       document.getElementById('edit-expiry').value = "0";
-      
-      // LOAD STATUS AND SIZE
-      document.getElementById('edit-status').value = inc.status || '';
+      document.getElementById('edit-status').value = inc.status || 'Going';
       document.getElementById('edit-size').value = inc.size || '';
 
       const typeInputs = document.querySelectorAll('#type-checkboxes input'); typeInputs.forEach(cb => cb.checked = false);
       const incTypes = Array.isArray(inc.type) ? inc.type : [inc.type]; incTypes.forEach(t => { const match = Array.from(typeInputs).find(i => i.value === t); if(match) match.checked = true; });
       const agencyInputs = document.querySelectorAll('#agency-checkboxes input'); agencyInputs.forEach(cb => cb.checked = false);
       if (inc.responding_agencies) { inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; }); }
-      map.panTo([inc.lat, inc.lng]);
       
-      // LOAD EXISTING UPDATES
-      loadUpdateLogs(inc.id);
+      loadIncidentLogs(inc.id); // LOAD LOGS
+      map.panTo([inc.lat, inc.lng]);
     }
+
+    // --- LOG MANAGEMENT ---
+    async function loadIncidentLogs(id) {
+      const container = document.getElementById('editor-logs-container');
+      container.innerHTML = '<div style="padding:1rem; color:var(--text-soft); font-size:0.8rem;">Loading logs...</div>';
+      
+      const { data, error } = await supabase
+        .from('incident_updates')
+        .select('*')
+        .eq('incident_id', id)
+        .order('created_at', { ascending: false });
+
+      if (error) { container.innerHTML = `<div style="color:#ef4444; padding:0.5rem; font-size:0.8rem;">Error loading logs.</div>`; return; }
+      if (!data || data.length === 0) { container.innerHTML = `<div style="padding:1rem; color:var(--text-soft); font-size:0.8rem; font-style:italic;">No logs found.</div>`; return; }
+
+      container.innerHTML = data.map(log => `
+        <div id="log-item-${log.id}" style="border-bottom:1px solid rgba(255,255,255,0.1); padding:0.6rem 0.4rem;">
+          <div style="font-size:0.7rem; color:var(--text-soft); display:flex; justify-content:space-between; margin-bottom:0.3rem;">
+            <span>${new Date(log.created_at).toLocaleString()}</span>
+            <div style="display:flex; gap:0.5rem;">
+              <span style="cursor:pointer; color:var(--accent);" onclick="startEditLog('${log.id}')">Edit</span>
+              <span style="cursor:pointer; color:#ef4444;" onclick="deleteLog('${log.id}')">Delete</span>
+            </div>
+          </div>
+          <div class="log-content markdown-body" id="log-text-${log.id}" style="font-size:0.85rem; color:#e2e8f0; line-height:1.4;">${marked.parse(log.message)}</div>
+          <textarea id="log-edit-input-${log.id}" class="form-textarea" style="display:none; font-size:0.85rem; min-height:60px; margin-bottom:0.5rem;">${log.message}</textarea>
+          <div id="log-edit-actions-${log.id}" style="display:none; gap:0.5rem;">
+            <button class="btn btn-primary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="saveEditLog('${log.id}')">Save</button>
+            <button class="btn btn-secondary" style="padding:0.3rem 0.6rem; font-size:0.75rem;" onclick="cancelEditLog('${log.id}')">Cancel</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function startEditLog(id) {
+      document.getElementById(`log-text-${id}`).style.display = 'none';
+      document.getElementById(`log-edit-input-${id}`).style.display = 'block';
+      document.getElementById(`log-edit-actions-${id}`).style.display = 'flex';
+    }
+
+    function cancelEditLog(id) {
+      document.getElementById(`log-text-${id}`).style.display = 'block';
+      document.getElementById(`log-edit-input-${id}`).style.display = 'none';
+      document.getElementById(`log-edit-actions-${id}`).style.display = 'none';
+    }
+
+    async function saveEditLog(id) {
+      const newText = document.getElementById(`log-edit-input-${id}`).value;
+      const { error } = await supabase.from('incident_updates').update({ message: newText }).eq('id', id);
+      if (error) alert(error.message); else loadIncidentLogs(selectedId);
+    }
+
+    async function deleteLog(id) {
+      if (!confirm("Delete this log entry?")) return;
+      const { error } = await supabase.from('incident_updates').delete().eq('id', id);
+      if (error) alert(error.message); else loadIncidentLogs(selectedId);
+    }
+
+    async function addUpdate() {
+      if(!selectedId) return;
+      const msg = document.getElementById('new-update-msg').value;
+      if(!msg) return;
+      const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]);
+      if(error) alert(error.message); else { document.getElementById('new-update-msg').value = ''; loadIncidentLogs(selectedId); }
+    }
+    // ----------------------
 
     function resetEditor() { selectedId = null; document.getElementById('selection-editor').style.display = 'none'; document.getElementById('instruction-text').style.display = 'block'; }
     function toggleAddMode() { addMode = !addMode; const btn = document.getElementById('btn-add-mode'); if(addMode) { btn.innerText = "Click Map to Place Pin"; btn.style.background = "#22c55e"; btn.style.color = "#fff"; document.getElementById('map').style.cursor = "crosshair"; } else { btn.innerText = "+ Add Pin"; btn.style.background = ""; btn.style.color = ""; document.getElementById('map').style.cursor = ""; } }
-    
     async function saveIncident() {
       if(!selectedId) return;
       const agencies = Array.from(document.querySelectorAll('#agency-checkboxes input:checked')).map(cb => cb.value);
@@ -337,93 +493,8 @@
       const { error } = await supabase.from('incidents').update(updates).eq('id', selectedId);
       if(error) alert(error.message); else { alert("Saved."); loadIncidents(); }
     }
-    
     async function deleteIncident() { if(!selectedId || !confirm("Delete?")) return; const { error } = await supabase.from('incidents').delete().eq('id', selectedId); if(!error) { resetEditor(); loadIncidents(); } else { alert(error.message); } }
     
-    async function addUpdate() { 
-      if(!selectedId) return; 
-      const msg = document.getElementById('new-update-msg').value; 
-      if(!msg) return; 
-      const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); 
-      if(error) {
-        alert(error.message); 
-      } else { 
-        document.getElementById('new-update-msg').value = ''; 
-        alert("Update posted."); 
-        loadUpdateLogs(selectedId); // REFRESH LOGS
-      } 
-    }
-    
-    // --- INCIDENT LOG FUNCTIONS ---
-    async function loadUpdateLogs(incidentId) {
-      const container = document.getElementById('existing-updates-list');
-      container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem;">Loading logs...</div>';
-
-      const { data: updates, error } = await supabase
-        .from('incident_updates')
-        .select('*')
-        .eq('incident_id', incidentId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        container.innerHTML = `<div style="color:#ef4444; font-size:0.8rem;">Error loading logs.</div>`;
-        return;
-      }
-
-      if (!updates || updates.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-soft); font-size:0.8rem; font-style:italic;">No updates found.</div>`;
-        return;
-      }
-
-      container.innerHTML = updates.map(log => `
-        <div style="background:rgba(0,0,0,0.2); padding:0.8rem; border-radius:6px; border:1px solid var(--border-subtle);">
-          <div style="font-size:0.7rem; color:var(--text-soft); margin-bottom:0.4rem; display:flex; justify-content:space-between;">
-            <span>${new Date(log.created_at).toLocaleString()}</span>
-            <span style="font-family:monospace; opacity:0.5;">ID: ${log.id}</span>
-          </div>
-          <textarea id="log-content-${log.id}" class="form-textarea" style="min-height:60px; font-size:0.85rem; margin-bottom:0.5rem;">${log.message}</textarea>
-          <div style="display:flex; gap:0.5rem;">
-            <button class="btn btn-primary" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="saveUpdateLog('${log.id}', this)">Save</button>
-            <button class="btn btn-danger" style="padding:0.3rem 0.8rem; font-size:0.75rem;" onclick="deleteUpdateLog('${log.id}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    async function saveUpdateLog(logId, btn) {
-      const newContent = document.getElementById(`log-content-${logId}`).value;
-      const originalText = btn.innerText;
-      btn.innerText = "...";
-      
-      const { error } = await supabase
-        .from('incident_updates')
-        .update({ message: newContent })
-        .eq('id', logId);
-
-      if (error) {
-        alert("Error updating log: " + error.message);
-        btn.innerText = originalText;
-      } else {
-        btn.innerText = "Saved!";
-        setTimeout(() => btn.innerText = "Save", 2000);
-      }
-    }
-
-    async function deleteUpdateLog(logId) {
-      if (!confirm("Are you sure you want to delete this log entry?")) return;
-      const { error } = await supabase
-        .from('incident_updates')
-        .delete()
-        .eq('id', logId);
-
-      if (error) {
-        alert("Error deleting log: " + error.message);
-      } else {
-        loadUpdateLogs(selectedId);
-      }
-    }
-    // ----------------------------
-
     function refreshData() { loadIncidents(); }
     
     const searchInput = document.getElementById('address-search');
