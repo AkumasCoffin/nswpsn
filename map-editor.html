@@ -11,7 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     /* FORCED LAYOUT FIX */
-    body, html { width: 100%; height: 100%; overflow: hidden; }
+    body, html { width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; background: #0f172a; }
     
     #editor-layout-root {
       position: absolute;
@@ -27,6 +27,54 @@
 
     .map-container { width: 100%; height: 100%; position: relative; }
     #map { width: 100%; height: 100%; background: #0f172a; z-index: 1; }
+
+    /* LOGIN PAGE STYLES */
+    #login-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #020617; z-index: 9999;
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+    }
+    .login-card {
+      background: #1e293b;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      width: 360px;
+      max-width: 90%;
+      padding: 2.5rem;
+    }
+    .login-title {
+      text-align: center; margin-bottom: 2rem;
+      font-size: 1.5rem; font-weight: 700; color: #fff;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .login-title span { color: #f97316; }
+    .login-subtitle {
+      text-align: center; color: #94a3b8; font-size: 0.9rem;
+      margin-top: -1.5rem; margin-bottom: 2rem;
+    }
+    .login-group { margin-bottom: 1.2rem; }
+    .login-label {
+      display: block; color: #cbd5e1; font-size: 0.8rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 0.5rem; font-weight: 600;
+    }
+    .login-input {
+      width: 100%; padding: 0.75rem; background: rgba(2, 6, 23, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      border-radius: 8px; color: #fff; font-size: 0.95rem;
+      transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .login-input:focus { outline: none; border-color: #f97316; }
+    .login-btn {
+      width: 100%; padding: 0.8rem; background: #f97316;
+      color: #fff; border: none; border-radius: 8px;
+      font-weight: 700; cursor: pointer; text-transform: uppercase;
+      letter-spacing: 0.05em; font-size: 0.9rem; margin-top: 1rem;
+      transition: background 0.2s;
+    }
+    .login-btn:hover { background: #ea580c; }
+    #login-error { color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; min-height: 1.2em; }
   </style>
 </head>
 <body>
@@ -40,7 +88,27 @@
         <p style="font-size:0.8rem; color:var(--text-soft); margin:0;">Status: Checking...</p>
       </div>
 
-      <div id="admin-tools" style="display:none; margin-top:2rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
+      <div id="password-tools" style="display:none; margin-top:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
+        <div class="sidebar-section-label">Password Change</div>
+        <div style="background:#1e293b; padding:1rem; border-radius:8px; border:1px solid var(--border-subtle);">
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label class="form-label">Old Password</label>
+            <input type="password" id="old-pass" class="form-input" placeholder="Current password">
+          </div>
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label class="form-label">New Password</label>
+            <input type="password" id="new-pass-1" class="form-input" placeholder="New password">
+          </div>
+          <div class="form-group" style="margin-bottom:0.8rem;">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" id="new-pass-2" class="form-input" placeholder="Confirm new password">
+          </div>
+          <button class="btn btn-secondary btn-block" onclick="changeUserPassword()">Update Password</button>
+          <div id="pwd-msg" style="font-size:0.75rem; margin-top:0.5rem; min-height:1rem;"></div>
+        </div>
+      </div>
+
+      <div id="admin-tools" style="display:none; margin-top:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
         <div class="sidebar-section-label">User Management</div>
         <div style="background:#1e293b; padding:1rem; border-radius:8px; border:1px solid var(--border-subtle);">
           <div class="form-group" style="margin-bottom:0.8rem;">
@@ -58,22 +126,22 @@
     </nav>
   </aside>
 
-  <div id="login-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#020617; z-index:2000; display:flex; align-items:center; justify-content:center; flex-direction:column;">
-    <div class="card" style="width:340px; padding:2.5rem; border:1px solid var(--border-subtle);">
-      <div style="text-align:center; margin-bottom:2rem;">
-        <div class="sidebar-logo" style="font-size:1.2rem;">Forcequit <span>Editor</span></div>
-        <div style="color:var(--text-soft); font-size:0.9rem;">Please authenticate to continue</div>
+  <div id="login-overlay">
+    <div class="login-card">
+      <div class="login-title">Forcequit <span>Editor</span></div>
+      <div class="login-subtitle">Restricted Access System</div>
+      
+      <div class="login-group">
+        <label class="login-label">Email Address</label>
+        <input type="email" id="login-email" class="login-input" placeholder="name@forcequit.xyz">
       </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" id="login-email" class="form-input">
+      <div class="login-group">
+        <label class="login-label">Password</label>
+        <input type="password" id="login-pass" class="login-input" placeholder="••••••••">
       </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" id="login-pass" class="form-input">
-      </div>
-      <button class="btn btn-primary btn-block" onclick="doLogin()">Login System</button>
-      <div id="login-error" style="color:#ef4444; font-size:0.85rem; margin-top:1rem; text-align:center;"></div>
+      
+      <button class="login-btn" onclick="doLogin()">Authenticate</button>
+      <div id="login-error"></div>
     </div>
   </div>
 
@@ -179,6 +247,8 @@
       const session = data.session;
       if (session) {
         document.getElementById('login-overlay').style.display = 'none';
+        document.getElementById('password-tools').style.display = 'block'; // Show password tools
+        
         document.getElementById('auth-controls').innerHTML = `
           <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:0.2rem;">${session.user.email}</div>
           <div style="font-size:0.75rem; color:#22c55e;">● Authenticated</div>
@@ -197,10 +267,14 @@
     async function doLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-pass').value;
-      const btn = document.querySelector('#login-overlay button');
+      const btn = document.querySelector('.login-btn');
+      const originalText = btn.textContent;
       btn.textContent = "Verifying...";
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { document.getElementById('login-error').innerText = error.message; btn.textContent = "Login System"; } 
+      if (error) { 
+        document.getElementById('login-error').innerText = error.message; 
+        btn.textContent = originalText; 
+      } 
       else { checkUser(); }
     }
 
@@ -214,6 +288,48 @@
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) { msg.style.color = '#ef4444'; msg.innerText = error.message; }
       else { msg.style.color = '#22c55e'; msg.innerText = "User created!"; document.getElementById('new-user-email').value = ''; document.getElementById('new-user-pass').value = ''; }
+    }
+
+    async function changeUserPassword() {
+      const oldPass = document.getElementById('old-pass').value;
+      const newPass1 = document.getElementById('new-pass-1').value;
+      const newPass2 = document.getElementById('new-pass-2').value;
+      const msg = document.getElementById('pwd-msg');
+      
+      if(!oldPass || !newPass1 || !newPass2) {
+        msg.style.color = '#ef4444'; msg.innerText = "All fields required."; return;
+      }
+      if(newPass1 !== newPass2) {
+        msg.style.color = '#ef4444'; msg.innerText = "New passwords do not match."; return;
+      }
+
+      msg.style.color = '#cbd5e1'; msg.innerText = "Verifying old password...";
+      
+      // 1. Verify Old Password (Re-auth)
+      const { data: { user } } = await supabase.auth.getUser();
+      if(!user) { window.location.reload(); return; }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({ 
+        email: user.email, 
+        password: oldPass 
+      });
+
+      if(signInError) {
+        msg.style.color = '#ef4444'; msg.innerText = "Old password incorrect."; return;
+      }
+
+      // 2. Update Password
+      msg.innerText = "Updating...";
+      const { error: updateError } = await supabase.auth.updateUser({ password: newPass1 });
+
+      if(updateError) {
+        msg.style.color = '#ef4444'; msg.innerText = updateError.message;
+      } else {
+        msg.style.color = '#22c55e'; msg.innerText = "Password updated successfully.";
+        document.getElementById('old-pass').value = '';
+        document.getElementById('new-pass-1').value = '';
+        document.getElementById('new-pass-2').value = '';
+      }
     }
 
     function renderTypeCheckboxes() {
@@ -241,7 +357,7 @@
               title: title,
               lat: e.latlng.lat,
               lng: e.latlng.lng,
-              type: ['Other'],
+              type: [], // AUTO-ADD REMOVED HERE
               description: '',
               responding_agencies: [],
               expires_at: expireTime
@@ -370,3 +486,5 @@
 
     checkUser();
   </script>
+</body>
+</html>
