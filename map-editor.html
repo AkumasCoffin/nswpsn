@@ -1,3 +1,7 @@
+{
+type: uploaded file
+fileName: akumascoffin/nswpsn/nswpsn-c10eceb71c74ab92eee4647dbd316dd52130ef5e/map-editor.html
+fullContent:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,6 +79,17 @@
     }
     .login-btn:hover { background: #ea580c; }
     #login-error { color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; min-height: 1.2em; }
+
+    /* LOG EDITOR STYLES */
+    .btn-xs { padding: 0.2rem 0.5rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1; transition: all 0.2s; }
+    .btn-xs:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-xs.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-xs.text-red { color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
+    .btn-xs.text-red:hover { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+    
+    .log-item { background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.8rem; }
+    .log-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; font-size: 0.75rem; color: var(--text-soft); }
+    .log-body { font-size: 0.9rem; line-height: 1.5; color: #e2e8f0; }
   </style>
 </head>
 <body>
@@ -161,13 +176,16 @@
           <button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button>
         </div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin-bottom:1.5rem;">
+        
         <div id="selection-editor" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
             <h4 style="margin:0; color:var(--accent);">Edit Incident</h4>
             <span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span>
           </div>
           <input type="hidden" id="edit-id">
+          
           <div class="form-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
+          
           <div class="form-group">
             <label class="form-label">Auto-Remove In...</label>
             <select id="edit-expiry" class="form-select" style="border-color:var(--accent);">
@@ -180,7 +198,9 @@
               <option value="48">48 Hours</option>
             </select>
           </div>
+          
           <div class="form-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
+          
           <div class="form-group">
             <label class="form-label">Responding Agencies</label>
             <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes">
@@ -197,17 +217,27 @@
               .pill-checkbox input { display:none; }
             </style>
           </div>
+          
           <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
+          
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;">
             <button class="btn btn-primary" onclick="saveIncident()">Save Changes</button>
             <button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button>
           </div>
-          <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
-            <label class="form-label">Add Update Log (Markdown supported)</label>
-            <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px;"></textarea>
-            <button class="btn btn-secondary btn-block" style="margin-top:0.5rem;" onclick="addUpdate()">Post Update</button>
+
+          <div style="margin-bottom:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
+            <label class="form-label">Incident Log</label>
+            <div id="editor-log-list" style="margin-bottom:1rem;"></div>
+            
+            <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
+              <label class="form-label" style="margin-bottom:0.3rem;">New Update</label>
+              <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px; margin-bottom:0.5rem;"></textarea>
+              <button class="btn btn-secondary btn-block" onclick="addUpdate()">Post Update</button>
+            </div>
           </div>
+
         </div>
+        
         <div id="instruction-text" style="color:var(--text-soft); font-size:0.9rem; text-align:center; margin-top:2rem;">
           Select a pin to edit<br>or click <strong>+ Add Pin</strong> to create new.
         </div>
@@ -227,6 +257,7 @@
     let map, markers = {};
     let addMode = false;
     let selectedId = null;
+    let currentLogData = {}; // Store updates for editing
 
     const INCIDENT_TYPES = [
       "Bush Fire", "Grass Fire", "Structure Fire", "MVA", "Transport", "Car / Vehicle Fire",
@@ -247,7 +278,7 @@
       const session = data.session;
       if (session) {
         document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('password-tools').style.display = 'block'; // Show password tools
+        document.getElementById('password-tools').style.display = 'block'; 
         
         document.getElementById('auth-controls').innerHTML = `
           <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:0.2rem;">${session.user.email}</div>
@@ -305,30 +336,19 @@
 
       msg.style.color = '#cbd5e1'; msg.innerText = "Verifying old password...";
       
-      // 1. Verify Old Password (Re-auth)
       const { data: { user } } = await supabase.auth.getUser();
       if(!user) { window.location.reload(); return; }
 
-      const { error: signInError } = await supabase.auth.signInWithPassword({ 
-        email: user.email, 
-        password: oldPass 
-      });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: user.email, password: oldPass });
+      if(signInError) { msg.style.color = '#ef4444'; msg.innerText = "Old password incorrect."; return; }
 
-      if(signInError) {
-        msg.style.color = '#ef4444'; msg.innerText = "Old password incorrect."; return;
-      }
-
-      // 2. Update Password
       msg.innerText = "Updating...";
       const { error: updateError } = await supabase.auth.updateUser({ password: newPass1 });
 
-      if(updateError) {
-        msg.style.color = '#ef4444'; msg.innerText = updateError.message;
-      } else {
+      if(updateError) { msg.style.color = '#ef4444'; msg.innerText = updateError.message; } 
+      else {
         msg.style.color = '#22c55e'; msg.innerText = "Password updated successfully.";
-        document.getElementById('old-pass').value = '';
-        document.getElementById('new-pass-1').value = '';
-        document.getElementById('new-pass-2').value = '';
+        document.getElementById('old-pass').value = ''; document.getElementById('new-pass-1').value = ''; document.getElementById('new-pass-2').value = '';
       }
     }
 
@@ -357,7 +377,7 @@
               title: title,
               lat: e.latlng.lat,
               lng: e.latlng.lng,
-              type: [], // AUTO-ADD REMOVED HERE
+              type: [], 
               description: '',
               responding_agencies: [],
               expires_at: expireTime
@@ -370,7 +390,6 @@
     }
 
     async function loadIncidents() {
-      // Load all incidents (even expired ones) for editing
       const { data: incidents } = await supabase.from('incidents').select('*');
       Object.values(markers).forEach(m => map.removeLayer(m));
       markers = {};
@@ -394,8 +413,6 @@
         });
       }
     }
-
-    // --- MISSING FUNCTIONS ADDED BELOW ---
 
     function getPinStyle(inc) {
       let colors = [];
@@ -443,6 +460,73 @@
         inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; });
       }
       map.panTo([inc.lat, inc.lng]);
+      
+      // LOAD LOGS
+      loadEditorLogs(inc.id);
+    }
+
+    async function loadEditorLogs(incidentId) {
+      const container = document.getElementById('editor-log-list');
+      container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem;">Loading logs...</div>';
+      
+      const { data: updates } = await supabase.from('incident_updates').select('*').eq('incident_id', incidentId).order('created_at', { ascending: false });
+      
+      if(!updates || updates.length === 0) {
+        container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem; font-style:italic;">No updates recorded.</div>';
+        currentLogData = {};
+        return;
+      }
+
+      currentLogData = {};
+      updates.forEach(u => currentLogData[u.id] = u);
+
+      container.innerHTML = updates.map(u => `
+        <div class="log-item" id="log-${u.id}">
+          <div class="log-meta">
+            <span>${new Date(u.created_at).toLocaleString()}</span>
+            <div style="display:flex; gap:0.4rem;">
+              <button class="btn-xs" onclick="enableEditLog('${u.id}')">Edit</button>
+              <button class="btn-xs text-red" onclick="deleteLog('${u.id}')">✕</button>
+            </div>
+          </div>
+          <div id="log-content-${u.id}" class="log-body markdown-body">${marked.parse(u.message)}</div>
+          
+          <div id="log-edit-ui-${u.id}" style="display:none; margin-top:0.5rem;">
+            <textarea id="log-edit-text-${u.id}" class="form-textarea" style="min-height:60px; font-size:0.85rem;"></textarea>
+            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
+              <button class="btn-xs btn-primary" onclick="saveLogEdit('${u.id}')">Save</button>
+              <button class="btn-xs" onclick="cancelLogEdit('${u.id}')">Cancel</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function enableEditLog(id) {
+      document.getElementById(`log-content-${id}`).style.display = 'none';
+      document.getElementById(`log-edit-ui-${id}`).style.display = 'block';
+      document.getElementById(`log-edit-text-${id}`).value = currentLogData[id].message;
+    }
+
+    function cancelLogEdit(id) {
+      document.getElementById(`log-content-${id}`).style.display = 'block';
+      document.getElementById(`log-edit-ui-${id}`).style.display = 'none';
+    }
+
+    async function saveLogEdit(id) {
+      const newMsg = document.getElementById(`log-edit-text-${id}`).value;
+      if(!newMsg) return;
+      
+      const { error } = await supabase.from('incident_updates').update({ message: newMsg }).eq('id', id);
+      if(error) alert(error.message);
+      else loadEditorLogs(selectedId); // Refresh list
+    }
+
+    async function deleteLog(id) {
+      if(!confirm("Delete this log entry permanently?")) return;
+      const { error } = await supabase.from('incident_updates').delete().eq('id', id);
+      if(error) alert(error.message);
+      else loadEditorLogs(selectedId);
     }
 
     function resetEditor() { selectedId = null; document.getElementById('selection-editor').style.display = 'none'; document.getElementById('instruction-text').style.display = 'block'; }
@@ -466,7 +550,19 @@
     }
 
     async function deleteIncident() { if(!selectedId || !confirm("Delete?")) return; const { error } = await supabase.from('incidents').delete().eq('id', selectedId); if(!error) { resetEditor(); loadIncidents(); } else { alert(error.message); } }
-    async function addUpdate() { if(!selectedId) return; const msg = document.getElementById('new-update-msg').value; if(!msg) return; const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); if(error) alert(error.message); else { document.getElementById('new-update-msg').value = ''; alert("Update posted."); } }
+    
+    async function addUpdate() { 
+      if(!selectedId) return; 
+      const msg = document.getElementById('new-update-msg').value; 
+      if(!msg) return; 
+      const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); 
+      if(error) alert(error.message); 
+      else { 
+        document.getElementById('new-update-msg').value = ''; 
+        loadEditorLogs(selectedId); 
+      } 
+    }
+    
     function refreshData() { loadIncidents(); }
     
     // Search
@@ -488,3 +584,4 @@
   </script>
 </body>
 </html>
+}
