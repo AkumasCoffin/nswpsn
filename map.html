@@ -84,8 +84,7 @@
       cursor: pointer; transition: all 0.15s; user-select: none; display: flex; align-items: center; gap: 6px;
     }
     .filter-pill:hover { background: rgba(185, 28, 28, 0.8); color: #fff; }
-    .filter-pill span.count { opacity: 0.7; font-size: 0.65rem; }
-
+    
     /* Active (Showing/Green) */
     .filter-pill.active { 
       background: rgba(21, 128, 61, 0.8) !important; 
@@ -103,6 +102,15 @@
     
     .pill-meta { font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid rgba(148,163,184,0.3); color: #cbd5e1; background: rgba(30, 41, 59, 0.5); display: inline-block; }
     
+    /* SEARCH RESULTS (Added for Map.html) */
+    .search-results {
+      background: #1e293b; border: 1px solid rgba(148, 163, 184, 0.35); border-radius: 8px; margin-top: 0.4rem;
+      max-height: 250px; overflow-y: auto; position: absolute; width: 100%; z-index: 1050; display: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .search-result-item { padding: 0.8rem; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; }
+    .search-result-item:hover { background: rgba(249, 115, 22, 0.2); color: #fff; }
+
     /* PULSE ANIMATION FIX */
     .rfs-pulse {
       box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
@@ -192,9 +200,20 @@
           <h3 style="margin:0; color:#fff;">Incidents</h3>
           <button class="btn btn-secondary" onclick="toggleListSidebar()" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Close ✕</button>
         </div>
+        
+        <div class="form-group" style="position:relative; margin-bottom:1.5rem; padding-bottom:1.5rem; border-bottom:1px solid rgba(148,163,184,0.2);">
+          <label class="form-label">Jump to Address</label>
+          <div style="display:flex; gap:5px;">
+            <input type="text" id="address-search" class="form-input" placeholder="Town or Address..." autocomplete="off" style="padding:0.5rem; font-size:0.85rem; border-radius:20px; background:rgba(0,0,0,0.3); border-color:rgba(255,255,255,0.1); color:#fff; width:100%;">
+            <button class="btn btn-secondary" onclick="performAddressSearch()" style="padding:0.4rem 0.8rem; border-radius:20px; font-size:0.75rem;">Go</button>
+          </div>
+          <div id="search-results" class="search-results"></div>
+        </div>
+
         <div class="filter-section" style="margin-bottom:0.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(148,163,184,0.2);">
           <div style="margin-bottom:1rem;">
-            <input type="text" id="filter-search" class="form-input" placeholder="Search town, street or type..." onkeyup="refreshMapAndList()" style="padding:0.5rem; font-size:0.85rem; border-radius:20px; background:rgba(0,0,0,0.3); border-color:rgba(255,255,255,0.1); color:#fff; width:100%;">
+            <label class="form-label">Filter Incidents</label>
+            <input type="text" id="filter-search" class="form-input" placeholder="Filter by Title, Type or Street..." onkeyup="refreshMapAndList()" style="padding:0.5rem; font-size:0.85rem; border-radius:20px; background:rgba(0,0,0,0.3); border-color:rgba(255,255,255,0.1); color:#fff; width:100%;">
           </div>
           <div class="filter-header"><label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Agencies</label><div style="display:flex; gap:8px;"><span class="filter-actions" onclick="bulkFilter('agency', true)">All</span><span class="filter-actions" onclick="bulkFilter('agency', false)">None</span></div></div>
           <div id="filter-container-agency" class="filter-group"></div>
@@ -245,6 +264,18 @@
     const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#000000', 'AVIATION': '#a855f7' };
     const TYPE_COLORS = { 'FIRE': '#ef4444', 'RESCUE': '#ff6600', 'HAZARD': '#eab308', 'POLICE': '#3b82f6', 'MEDICAL': '#3b82f6', 'DEFAULT': '#000000' };
 
+    // --- FIX: Deterministic UUID generator for RFS links ---
+    function generateRfsId(url) {
+        let hash = 0;
+        for (let i = 0; i < url.length; i++) {
+            hash = ((hash << 5) - hash) + url.charCodeAt(i);
+            hash |= 0;
+        }
+        let hex = (hash >>> 0).toString(16).padStart(8, '0');
+        let finalHex = (hex + hex + hex + hex).slice(0, 32);
+        return finalHex.slice(0, 8) + '-' + finalHex.slice(8, 12) + '-' + '4' + finalHex.slice(13, 16) + '-' + 'a' + finalHex.slice(17, 20) + '-' + finalHex.slice(20, 32);
+    }
+
     function toggleMapLayer(target) {
       const btn = document.getElementById(target === 'user' ? 'btn-user' : 'btn-rfs');
       const layer = target === 'user' ? userLayer : rfsLayer;
@@ -258,7 +289,13 @@
 
     async function loadAllData() {
       const nowISO = new Date().toISOString();
-      const { data: userIncidents } = await supabase.from('incidents').select('*').gt('expires_at', nowISO);
+      // Filter out records that are just stubs for RFS logs
+      const { data: userIncidents } = await supabase
+          .from('incidents')
+          .select('*')
+          .gt('expires_at', nowISO)
+          .eq('is_rfs_stub', false); 
+      
       let rfsItems = [];
       try {
         const res = await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.xml");
@@ -268,13 +305,14 @@
         xml.querySelectorAll("item").forEach((item, idx) => {
           const title = item.querySelector("title").textContent;
           const link = item.querySelector("link").textContent;
+          const guid = item.querySelector("guid") ? item.querySelector("guid").textContent : link;
           const descHtml = item.querySelector("description").textContent;
           const pointStr = item.querySelector("point") ? item.querySelector("point").textContent : null;
           const details = parseRfsDescription(descHtml);
           details.title = title; details.link = link;
           let lat = null, lng = null;
           if (pointStr) [lat, lng] = pointStr.split(' ').map(Number);
-          if(lat && lng) { rfsItems.push({ id: `rfs-${idx}`, source: 'rfs', title: title, rawDetails: details, typeDisplay: details.TYPE || 'Fire', typesList: [details.TYPE || 'Fire'], agenciesList: ['RFS'], lat: lat, lng: lng, alertLevel: (details['ALERT LEVEL'] || '').toLowerCase() }); }
+          if(lat && lng) { rfsItems.push({ id: generateRfsId(guid), source: 'rfs', title: title, rawDetails: details, link: link, typeDisplay: details.TYPE || 'Fire', typesList: [details.TYPE || 'Fire'], agenciesList: ['RFS'], lat: lat, lng: lng, alertLevel: (details['ALERT LEVEL'] || '').toLowerCase() }); }
         });
       } catch (e) { console.error("RFS Feed Error", e); }
 
@@ -296,6 +334,7 @@
       refreshMapAndList();
     }
 
+    // FIXED: Updated Search logic to include Location and Type fields
     function refreshMapAndList() {
       const searchTerm = (document.getElementById('filter-search').value || '').toLowerCase();
       const listContainer = document.getElementById('incident-list-container');
@@ -310,7 +349,15 @@
         if(item.source === 'rfs' && !showRfs) return false;
         item.agenciesList.forEach(a => counts.agency[a] = (counts.agency[a] || 0) + 1);
         item.typesList.forEach(t => counts.type[t] = (counts.type[t] || 0) + 1);
-        if (searchTerm && !item.title.toLowerCase().includes(searchTerm)) return false;
+        
+        if (searchTerm) {
+            // Expanded search logic
+            const titleMatch = item.title.toLowerCase().includes(searchTerm);
+            const locationMatch = (item.rawDetails.LOCATION || '').toLowerCase().includes(searchTerm);
+            const typeMatch = item.typeDisplay.toLowerCase().includes(searchTerm);
+            if (!titleMatch && !locationMatch && !typeMatch) return false;
+        }
+        
         if (!item.agenciesList.some(a => filterState.agency[a] === true)) return false;
         if (!item.typesList.some(t => filterState.type[t] === true)) return false;
         return true;
@@ -376,7 +423,7 @@
           const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; ${shadowStyle}"></div>`;
           const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
           const marker = L.marker([item.lat, item.lng], { icon: icon }).addTo(rfsLayer);
-          marker.on('click', () => showRfsDetails(item.rawDetails));
+          marker.on('click', () => showRfsDetails(item)); // Pass full item
         }
       });
 
@@ -428,7 +475,7 @@
       const item = unifiedIncidents.find(i => i.id === id);
       if(!item) return;
       map.setView([item.lat, item.lng], 14);
-      if(item.source === 'user') showIncidentDetails(item.rawDetails); else showRfsDetails(item.rawDetails);
+      if(item.source === 'user') showIncidentDetails(item.rawDetails); else showRfsDetails(item); // Pass full item
       if(window.innerWidth < 900) toggleListSidebar();
     }
     function parseRfsDescription(html) {
@@ -438,14 +485,40 @@
       lines.forEach(line => { const parts = line.split(':'); if(parts.length > 1) { data[parts[0].trim().toUpperCase()] = parts.slice(1).join(':').trim(); } });
       return data;
     }
-    function showRfsDetails(data) {
+    // Updated showRfsDetails to fetch and display user logs
+    async function showRfsDetails(item) {
+      const data = item.rawDetails;
       const sidebar = document.getElementById('incident-sidebar');
       const content = document.getElementById('sidebar-content');
       sidebar.classList.add('open');
+      
+      content.innerHTML = '<p style="color:var(--text-soft); text-align:center; margin-top:2rem;">Loading details and log...</p>';
+      
+      // Fetch logs using the incident's generated ID
+      // FIX: Changed const to let for 'updates'
+      let { data: updates, error: logError } = await supabase.from('incident_updates').select('*').eq('incident_id', item.id).order('created_at', { ascending: false });
+      
+      let updatesHtml;
+      if (logError) {
+          updatesHtml = `<div style="color:#ef4444; font-size:0.85rem; margin-top:1rem; font-style:italic;">Error loading user logs: ${logError.message}</div>`;
+      } else if (updates && updates.length > 0) {
+          updates = updates.map(u => ({...u, isNew: u.id === item.latestUpdateId})); // Mark latest for highlight if needed
+          updatesHtml = `<div class="update-timeline">` + updates.map(u => `<div class="update-item"><div class="update-time">${new Date(u.created_at).toLocaleString()}</div><div class="update-msg markdown-body">${marked.parse(u.message)}</div></div>`).join('') + `</div>`;
+      } else {
+          updatesHtml = '<div style="font-size:0.85rem; color:var(--text-soft); margin-top:1rem; font-style:italic;">No user updates yet.</div>';
+      }
+      
       let badgeClass = "pill-white";
       const lvl = (data['ALERT LEVEL'] || '').toLowerCase();
       if(lvl.includes('emergency')) badgeClass = "pill-red"; else if(lvl.includes('watch')) badgeClass = "pill-orange"; else if(lvl.includes('advice')) badgeClass = "pill-blue";
-      content.innerHTML = `<div style="margin-bottom:0.5rem;"><span class="pill pill-agency-rfs">NSW RFS FEED</span><span class="pill ${badgeClass}">${data['ALERT LEVEL'] || 'Incident'}</span></div><h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#fff;">${data.title}</h2><div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; line-height:1.6; color:#cbd5e1;"><strong>Location:</strong> ${data['LOCATION'] || 'N/A'}<br><strong>Status:</strong> ${data['STATUS'] || 'Unknown'}<br><strong>Type:</strong> ${data['TYPE'] || 'Fire'}<br><strong>Size:</strong> ${data['SIZE'] || '-'}<br><strong>Agency:</strong> ${data['RESPONSIBLE AGENCY'] || 'RFS'}</div><div style="font-size:0.8rem; color:#94a3b8; margin-bottom:1rem;">Updated: ${data['UPDATED'] || 'Recently'}</div><a href="${data.link}" target="_blank" class="btn btn-primary" style="text-decoration:none; display:inline-block; width:100%; text-align:center;">View on Fires Near Me</a>`;
+      
+      content.innerHTML = `<div style="margin-bottom:0.5rem;"><span class="pill pill-agency-rfs">NSW RFS FEED</span><span class="pill ${badgeClass}">${data['ALERT LEVEL'] || 'Incident'}</span></div><h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#fff;">${data.title}</h2><div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; line-height:1.6; color:#cbd5e1;"><strong>Location:</strong> ${data['LOCATION'] || 'N/A'}<br><strong>Status:</strong> ${data['STATUS'] || 'Unknown'}<br><strong>Type:</strong> ${data['TYPE'] || 'Fire'}<br><strong>Size:</strong> ${data['SIZE'] || '-'}<br><strong>Agency:</strong> ${data['RESPONSIBLE AGENCY'] || 'RFS'}</div><div style="font-size:0.8rem; color:#94a3b8; margin-bottom:1rem;">Updated: ${data['UPDATED'] || 'Recently'}</div>
+      
+      <a href="${data.link}" target="_blank" class="btn btn-primary" style="text-decoration:none; display:inline-block; width:100%; text-align:center; margin-bottom:1.5rem;">View on Fires Near Me</a>
+      
+      <hr style="border:0; border-top:1px solid var(--border-subtle); margin:0 0 1.5rem 0;">
+      <h3 style="font-size:0.85rem; text-transform:uppercase; color:var(--text-soft); letter-spacing:0.1em; margin-bottom:0.5rem;">User Incident Log (External)</h3>
+      ${updatesHtml}`;
     }
     async function showIncidentDetails(incident) {
       const sidebar = document.getElementById('incident-sidebar');
@@ -486,8 +559,63 @@
       return { background: background, glow: colors[0] };
     }
     
+    // --- REALTIME IMPLEMENTATION ---
+
+    function handleRealtimeEvent() {
+        console.log("Realtime event received. Refreshing map data.");
+        // Re-run the main data loading function to pull fresh data from both Supabase and the RFS feed
+        loadAllData();
+    }
+
+    function setupRealtimeSubscription() {
+      // 1. Subscribe to changes on the incidents table
+      supabase
+        .channel('incidents-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'incidents' }, handleRealtimeEvent)
+        .subscribe();
+      
+      // 2. Subscribe to changes on the incident_updates (logs) table
+      supabase
+        .channel('log-updates')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'incident_updates' }, handleRealtimeEvent)
+        .subscribe();
+      
+      console.log("Supabase Realtime Subscriptions started.");
+    }
+    
+    // NEW: Search function to call on button click or Enter
+    const searchInput = document.getElementById('address-search');
+    const resultsBox = document.getElementById('search-results');
+
+    async function performAddressSearch() {
+        const query = searchInput.value;
+        if(query.length <= 3) return;
+        
+        resultsBox.innerHTML = '<div style="padding:0.8rem; color:var(--text-soft);">Searching...</div>'; resultsBox.style.display = 'block';
+        try { 
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=au`); 
+          const data = await res.json();
+          resultsBox.innerHTML = ''; 
+          if(data.length === 0) { resultsBox.innerHTML = '<div style="padding:0.8rem;">No results found.</div>'; return; }
+          data.forEach(place => { 
+            const div = document.createElement('div'); 
+            div.className = 'search-result-item'; 
+            div.innerText = place.display_name; 
+            div.onclick = () => { map.setView([place.lat, place.lon], 14); resultsBox.style.display = 'none'; searchInput.value = ''; }; 
+            resultsBox.appendChild(div); 
+          });
+        } catch(err) { resultsBox.innerHTML = 'Error.'; }
+    }
+
+    searchInput.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') performAddressSearch();
+    });
+    
+    document.addEventListener('click', function(event) { if (!resultsBox.contains(event.target) && event.target !== searchInput) { resultsBox.style.display = 'none'; } });
+
+    // Initial data load + Realtime setup on page load
     loadAllData();
-    setInterval(loadAllData, 60000);
+    setupRealtimeSubscription();
   </script>
 </body>
 </html>

@@ -28,7 +28,7 @@
     .btn-toggle.active.map-type-btn { border: 1px solid #f97316; color: #fdba74; }
     .btn-toggle:not(.active) { opacity: 0.6; }
     
-    /* LAYER TOGGLES (Added for RFS Button) */
+    /* LAYER TOGGLES */
     .layer-toggles { position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 800; display: flex; gap: 10px; background: rgba(15, 23, 42, 0.9); padding: 6px 12px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
     .dot-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .btn-toggle.active .dot-indicator { box-shadow: 0 0 8px currentColor; }
@@ -56,6 +56,15 @@
       70% { transform: scale(1); box-shadow: 0 0 4px 10px rgba(239, 68, 68, 0); }
       100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
+
+    /* SEARCH RESULTS */
+    .search-results {
+      background: #1e293b; border: 1px solid var(--border-subtle); border-radius: 8px; margin-top: 0.4rem;
+      max-height: 250px; overflow-y: auto; position: absolute; width: 100%; z-index: 1050; display: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .search-result-item { padding: 0.8rem; font-size: 0.85rem; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; }
+    .search-result-item:hover { background: rgba(249, 115, 22, 0.2); color: #fff; }
 
     /* LOGIN & FORM */
     #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
@@ -124,15 +133,24 @@
       </div>
       <div class="map-sidebar open" id="editor-panel">
         <h3 style="margin-top:0; color:#fff;">Map Controls</h3>
-        <div class="form-group" style="position:relative; margin-bottom:1rem;"><label class="form-label">Jump to Location</label><input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off"><div id="search-results" class="search-results"></div></div>
+        
+        <div class="form-group" style="position:relative; margin-bottom:1rem;">
+          <label class="form-label">Jump to Location</label>
+          <div style="display:flex; gap:5px;">
+            <input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off">
+            <button class="btn btn-secondary" onclick="performAddressSearch()" style="padding:0.4rem 0.8rem;">Go</button>
+          </div>
+          <div id="search-results" class="search-results"></div>
+        </div>
+
         <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary btn-block" id="btn-add-mode" onclick="toggleAddMode()">+ Add Pin</button><button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button></div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin-bottom:1.5rem;">
         <div id="selection-editor" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;"><h4 style="margin:0; color:var(--accent);">Edit Incident</h4><span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;" id="edit-header"><h4 style="margin:0; color:var(--accent);">Edit Incident</h4><span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span></div>
           <input type="hidden" id="edit-id">
-          <div class="form-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
+          <div class="form-group" id="title-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
           
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;" id="status-size-group">
             <div class="form-group">
               <label class="form-label">Status</label>
               <select id="edit-status" class="form-select">
@@ -156,13 +174,13 @@
             <div class="form-group"><label class="form-label">Size</label><input type="text" id="edit-size" class="form-input" placeholder="e.g. 5 ha"></div>
           </div>
 
-          <div class="form-group"><label class="form-label">Auto-Remove In...</label><select id="edit-expiry" class="form-select" style="border-color:var(--accent);"><option value="0">Keep Current Expiry</option><option value="1">1 Hour</option><option value="2">2 Hours</option><option value="4">4 Hours</option><option value="12">12 Hours</option><option value="24" selected>24 Hours (Default)</option><option value="48">48 Hours</option></select></div>
-          <div class="form-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
-          <div class="form-group"><label class="form-label">Responding Agencies</label><div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes"><label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label><label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label><label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label><label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label><label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label><label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label></div></div>
-          <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary" onclick="saveIncident()">Save Changes</button><button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button></div>
+          <div class="form-group" id="expiry-group"><label class="form-label">Auto-Remove In...</label><select id="edit-expiry" class="form-select" style="border-color:var(--accent);"><option value="0">Keep Current Expiry</option><option value="1">1 Hour</option><option value="2">2 Hours</option><option value="4">4 Hours</option><option value="12">12 Hours</option><option value="24" selected>24 Hours (Default)</option><option value="48">48 Hours</option></select></div>
+          <div class="form-group" id="type-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
+          <div class="form-group" id="agency-group"><label class="form-label">Responding Agencies</label><div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes"><label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label><label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label><label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label><label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label><label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label><label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label></div></div>
+          <div class="form-group" id="desc-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;" id="save-delete-group"><button class="btn btn-primary" onclick="saveIncident()">Save Changes</button><button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button></div>
           
-          <div class="form-group" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;">
+          <div class="form-group" style="margin-top:1.5rem; border-top:1px solid rgba(255,255,255,0.1); padding-top:1rem;" id="log-section">
             <label class="form-label">Incident Logs</label>
             <div id="editor-logs-container" style="max-height: 250px; overflow-y: auto; background: rgba(0,0,0,0.2); border: 1px solid var(--border-subtle); border-radius: 6px; margin-bottom:0.8rem;">
               <div style="padding:1rem; color:var(--text-soft); font-size:0.8rem;">Loading...</div>
@@ -199,6 +217,18 @@
     const INCIDENT_TYPES = [ "Bush Fire", "Grass Fire", "Structure Fire", "MVA", "Transport", "Car / Vehicle Fire", "Hazard Reduction", "Pile Burn", "Search / Rescue", "Assist Other Agency", "Animal Rescue", "Building Fire", "Rescue", "Hazmat", "Salvage", "AFA", "Cardiac Arrest", "Abdominal Pain", "Fracture", "Chest Pain", "Amb Collision", "Drug Overdose", "Suicide / Self-harm", "Storm Damage", "Flood Rescue", "Road Crash Rescue", "Vertical Rescue", "General Land Rescue", "Assist Police", "Resupply", "Police Operation", "Other" ];
     const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#ffffff', 'AVIATION': '#a855f7' };
     const TYPE_COLORS = { 'FIRE': '#ef4444', 'RESCUE': '#ff6600', 'HAZARD': '#eab308', 'POLICE': '#3b82f6', 'MEDICAL': '#3b82f6', 'DEFAULT': '#000000' };
+
+    // --- Deterministic UUID generator for RFS links ---
+    function generateRfsId(url) {
+        let hash = 0;
+        for (let i = 0; i < url.length; i++) {
+            hash = ((hash << 5) - hash) + url.charCodeAt(i);
+            hash |= 0;
+        }
+        let hex = (hash >>> 0).toString(16).padStart(8, '0');
+        let finalHex = (hex + hex + hex + hex).slice(0, 32);
+        return finalHex.slice(0, 8) + '-' + finalHex.slice(8, 12) + '-' + '4' + finalHex.slice(13, 16) + '-' + 'a' + finalHex.slice(17, 20) + '-' + finalHex.slice(20, 32);
+    }
 
     async function checkUser() {
       const { data } = await supabase.auth.getSession();
@@ -275,6 +305,15 @@
       else if (type === 'topo') { map.addLayer(topoBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-topo').classList.add('active'); }
     }
 
+    // Helper function to parse RFS description
+    function parseRfsDescription(html) {
+      const clean = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, '');
+      const lines = clean.split('\n');
+      let data = {};
+      lines.forEach(line => { const parts = line.split(':'); if(parts.length > 1) { data[parts[0].trim().toUpperCase()] = parts.slice(1).join(':').trim(); } });
+      return data;
+    }
+
     // --- RFS FEED ---
     async function toggleRfsLayer() {
       const btn = document.getElementById('btn-rfs');
@@ -300,6 +339,10 @@
         
         items.forEach(item => {
             const title = item.querySelector("title").textContent;
+            const link = item.querySelector("link").textContent;
+            // FIX: EXTRACT GUID for unique ID generation
+            const guid = item.querySelector("guid") ? item.querySelector("guid").textContent : link;
+            
             const desc = item.querySelector("description").textContent;
             const pointStr = item.querySelector("point") ? item.querySelector("point").textContent : null;
             
@@ -316,8 +359,15 @@
                 const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; ${shadowStyle}"></div>`;
                 const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
                 
+                const details = parseRfsDescription(desc.replace(/<br\s*\/?>/gi, '\n'));
+                details.title = title;
+                details.link = link; 
+                details.id = generateRfsId(guid); // FIX: Use guid for ID
+                details.point = pointStr;
+                
                 L.marker([lat, lng], { icon: icon, interactive: true })
-                 .bindTooltip(`<strong>${title}</strong><br>RFS Feed (Read-Only)`, { direction: 'top', offset: [0,-10] })
+                 .bindTooltip(`<strong>${title}</strong><br>RFS Feed (Click to Log)`, { direction: 'top', offset: [0,-10] })
+                 .on('click', (e) => { L.DomEvent.stopPropagation(e); selectRfsIncident(details); })
                  .addTo(rfsLayer);
             }
         });
@@ -330,6 +380,9 @@
       Object.values(markers).forEach(m => map.removeLayer(m)); markers = {};
       if(incidents) {
         incidents.forEach(inc => {
+          // Do not show stub rows on the editor map
+          if (inc.is_rfs_stub) return;
+
           const isExpired = new Date(inc.expires_at) < new Date();
           let style = getPinStyle(inc);
           if(isExpired) { style.background = '#475569'; style.glow = '#475569'; }
@@ -374,6 +427,89 @@
       }
     }
 
+    function selectIncident(inc) {
+      // Restore view for standard Supabase incident
+      const RFS_BLOCK = document.getElementById('rfs-read-only-data');
+      if(RFS_BLOCK) RFS_BLOCK.remove();
+      
+      selectedId = inc.id;
+      document.getElementById('selection-editor').style.display = 'block';
+      document.getElementById('instruction-text').style.display = 'none';
+      document.getElementById('edit-id').value = inc.id;
+      document.getElementById('edit-id-display').textContent = "ID: " + inc.id.split('-')[0];
+      document.getElementById('edit-title').value = inc.title;
+      document.getElementById('edit-desc').value = inc.description || '';
+      document.getElementById('edit-expiry').value = "0";
+      document.getElementById('edit-status').value = inc.status || 'Going';
+      document.getElementById('edit-size').value = inc.size || '';
+
+      // Show all editor fields for Supabase records
+      document.getElementById('title-group').style.display = 'block';
+      document.getElementById('status-size-group').style.display = 'grid';
+      document.getElementById('expiry-group').style.display = 'block';
+      document.getElementById('type-group').style.display = 'block';
+      document.getElementById('agency-group').style.display = 'block';
+      document.getElementById('desc-group').style.display = 'block';
+      document.getElementById('save-delete-group').style.display = 'grid';
+      document.getElementById('log-section').style.display = 'block';
+
+      const typeInputs = document.querySelectorAll('#type-checkboxes input'); typeInputs.forEach(cb => cb.checked = false);
+      const incTypes = Array.isArray(inc.type) ? inc.type : [inc.type]; incTypes.forEach(t => { const match = Array.from(typeInputs).find(i => i.value === t); if(match) match.checked = true; });
+      const agencyInputs = document.querySelectorAll('#agency-checkboxes input'); agencyInputs.forEach(cb => cb.checked = false);
+      if (inc.responding_agencies) { inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; }); }
+      
+      loadIncidentLogs(inc.id);
+      map.panTo([inc.lat, inc.lng]);
+    }
+    
+    // New function to handle selection of RFS incident for logging
+    async function selectRfsIncident(data) {
+        // Hide standard editor fields
+        document.getElementById('title-group').style.display = 'none';
+        document.getElementById('status-size-group').style.display = 'none';
+        document.getElementById('expiry-group').style.display = 'none';
+        document.getElementById('type-group').style.display = 'none';
+        document.getElementById('agency-group').style.display = 'none';
+        document.getElementById('desc-group').style.display = 'none';
+        document.getElementById('save-delete-group').style.display = 'none';
+
+        selectedId = data.id; // Use the generated UUID-formatted ID
+        document.getElementById('selection-editor').style.display = 'block';
+        document.getElementById('instruction-text').style.display = 'none';
+        document.getElementById('edit-id').value = data.id;
+        document.getElementById('edit-id-display').textContent = "RFS Log ID: " + data.id.slice(0, 8); 
+        
+        // Build and insert RFS read-only data block
+        const customRFSBlock = document.createElement('div');
+        customRFSBlock.id = 'rfs-read-only-data';
+        customRFSBlock.dataset.point = data.point;
+        
+        customRFSBlock.innerHTML = `
+          <div style="background:rgba(249, 115, 22, 0.1); border:1px solid #f97316; padding:0.8rem; border-radius:6px; margin-bottom:1rem; font-size:0.85rem;">
+            <h5 style="margin-top:0.3rem; margin-bottom:0.5rem; color:#f97316;">RFS Incident Details (Read Only)</h5>
+            <strong>Title:</strong> ${data.title || 'N/A'}<br>
+            <strong>Status:</strong> ${data.STATUS || 'Unknown'}<br>
+            <strong>Location:</strong> ${data.LOCATION || 'N/A'}<br>
+            <a href="${data.link}" target="_blank" style="font-size:0.8rem; margin-top:0.5rem; display:inline-block;">View on Fires Near Me →</a>
+          </div>
+        `;
+        const editorPanel = document.getElementById('selection-editor');
+        let existingRFSBlock = document.getElementById('rfs-read-only-data');
+        if(existingRFSBlock) { existingRFSBlock.remove(); }
+        
+        // The logs section is the last element in the selection editor. We insert the RFS block before it.
+        const logSection = document.getElementById('log-section');
+        editorPanel.insertBefore(customRFSBlock, logSection); 
+
+        // Show log section
+        logSection.style.display = 'block';
+        document.getElementById('new-update-msg').value = ''; 
+
+        loadIncidentLogs(data.id);
+        const [lat, lng] = data.point.split(' ').map(Number);
+        map.panTo([lat, lng]);
+    }
+
     function getPinStyle(inc) {
       let colors = [];
       if (inc.responding_agencies && inc.responding_agencies.length > 0) { inc.responding_agencies.forEach(a => { const c = AGENCY_COLORS[a.toUpperCase()]; if (c) colors.push(c); }); }
@@ -386,25 +522,24 @@
       return { background: background, glow: colors[0] };
     }
 
-    function selectIncident(inc) {
-      selectedId = inc.id;
-      document.getElementById('selection-editor').style.display = 'block';
-      document.getElementById('instruction-text').style.display = 'none';
-      document.getElementById('edit-id').value = inc.id;
-      document.getElementById('edit-id-display').textContent = "ID: " + inc.id.split('-')[0];
-      document.getElementById('edit-title').value = inc.title;
-      document.getElementById('edit-desc').value = inc.description || '';
-      document.getElementById('edit-expiry').value = "0";
-      document.getElementById('edit-status').value = inc.status || 'Going';
-      document.getElementById('edit-size').value = inc.size || '';
-
-      const typeInputs = document.querySelectorAll('#type-checkboxes input'); typeInputs.forEach(cb => cb.checked = false);
-      const incTypes = Array.isArray(inc.type) ? inc.type : [inc.type]; incTypes.forEach(t => { const match = Array.from(typeInputs).find(i => i.value === t); if(match) match.checked = true; });
-      const agencyInputs = document.querySelectorAll('#agency-checkboxes input'); agencyInputs.forEach(cb => cb.checked = false);
-      if (inc.responding_agencies) { inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; }); }
+    function resetEditor() { 
+      selectedId = null; 
+      document.getElementById('selection-editor').style.display = 'none'; 
+      document.getElementById('instruction-text').style.display = 'block'; 
       
-      loadIncidentLogs(inc.id); // LOAD LOGS
-      map.panTo([inc.lat, inc.lng]);
+      // Ensure all standard edit fields are visible again
+      document.getElementById('title-group').style.display = 'block';
+      document.getElementById('status-size-group').style.display = 'grid';
+      document.getElementById('expiry-group').style.display = 'block';
+      document.getElementById('type-group').style.display = 'block';
+      document.getElementById('agency-group').style.display = 'block';
+      document.getElementById('desc-group').style.display = 'block';
+      document.getElementById('save-delete-group').style.display = 'grid';
+      document.getElementById('log-section').style.display = 'block';
+
+      // Remove custom RFS block if it exists
+      const RFS_BLOCK = document.getElementById('rfs-read-only-data');
+      if(RFS_BLOCK) RFS_BLOCK.remove();
     }
 
     // --- LOG MANAGEMENT ---
@@ -418,7 +553,7 @@
         .eq('incident_id', id)
         .order('created_at', { ascending: false });
 
-      if (error) { container.innerHTML = `<div style="color:#ef4444; padding:0.5rem; font-size:0.8rem;">Error loading logs.</div>`; return; }
+      if (error) { container.innerHTML = `<div style="color:#ef4444; padding:0.5rem; font-size:0.8rem;">Error loading logs: ${error.message}</div>`; return; }
       if (!data || data.length === 0) { container.innerHTML = `<div style="padding:1rem; color:var(--text-soft); font-size:0.8rem; font-style:italic;">No logs found.</div>`; return; }
 
       container.innerHTML = data.map(log => `
@@ -468,13 +603,63 @@
       if(!selectedId) return;
       const msg = document.getElementById('new-update-msg').value;
       if(!msg) return;
+
+      let incidentType = "User"; // Default for local pins
+      let lat = null, lng = null;
+
+      // 1. Check if this is an RFS incident ID
+      const RFS_BLOCK = document.getElementById('rfs-read-only-data');
+      if (RFS_BLOCK) {
+          incidentType = "RFS";
+          const title = "RFS Incident Log"; 
+          
+          const pointStr = RFS_BLOCK.dataset.point; 
+          [lat, lng] = pointStr ? pointStr.split(' ').map(Number) : [null, null];
+
+          const { data: existing, error: selectError } = await supabase
+              .from('incidents')
+              .select('id')
+              .eq('id', selectedId);
+          
+          if (selectError) { alert(`Error checking stub: ${selectError.message}`); return; }
+
+          if (!existing || existing.length === 0) {
+              const expireTime = new Date(Date.now() + 48 * 3600000); 
+              const { error: insertError } = await supabase
+                  .from('incidents')
+                  .insert([{ 
+                      id: selectedId, 
+                      title: title, 
+                      lat: lat || 0, 
+                      lng: lng || 0,
+                      is_rfs_stub: true, 
+                      type: ['RFS'],
+                      status: 'Monitoring',
+                      description: 'Auto-created stub for RFS fire log.',
+                      expires_at: expireTime
+                  }]);
+              
+              if (insertError) {
+                  alert(`Error creating stub for RFS log: ${insertError.message}`); 
+                  return;
+              }
+          }
+      }
+
       const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]);
-      if(error) alert(error.message); else { document.getElementById('new-update-msg').value = ''; loadIncidentLogs(selectedId); }
+      
+      if(error) { 
+          alert(`Error saving log: ${error.message}`); 
+      } else { 
+          document.getElementById('new-update-msg').value = ''; 
+          loadIncidentLogs(selectedId); 
+      }
     }
     // ----------------------
 
-    function resetEditor() { selectedId = null; document.getElementById('selection-editor').style.display = 'none'; document.getElementById('instruction-text').style.display = 'block'; }
     function toggleAddMode() { addMode = !addMode; const btn = document.getElementById('btn-add-mode'); if(addMode) { btn.innerText = "Click Map to Place Pin"; btn.style.background = "#22c55e"; btn.style.color = "#fff"; document.getElementById('map').style.cursor = "crosshair"; } else { btn.innerText = "+ Add Pin"; btn.style.background = ""; btn.style.color = ""; document.getElementById('map').style.cursor = ""; } }
+    
+    // FIX: Swapped alert logic
     async function saveIncident() {
       if(!selectedId) return;
       const agencies = Array.from(document.querySelectorAll('#agency-checkboxes input:checked')).map(cb => cb.value);
@@ -491,24 +676,41 @@
       const expiryOption = parseInt(document.getElementById('edit-expiry').value);
       if (expiryOption > 0) { updates.expires_at = new Date(Date.now() + expiryOption * 3600000); }
       const { error } = await supabase.from('incidents').update(updates).eq('id', selectedId);
-      if(error) alert(error.message); else { alert("Saved."); loadIncidents(); }
+      if(error) { alert(error.message); } else { alert("Saved."); loadIncidents(); }
     }
+    
     async function deleteIncident() { if(!selectedId || !confirm("Delete?")) return; const { error } = await supabase.from('incidents').delete().eq('id', selectedId); if(!error) { resetEditor(); loadIncidents(); } else { alert(error.message); } }
     
-    function refreshData() { loadIncidents(); }
+    function refreshData() { loadIncidents(); if(document.getElementById('btn-rfs').classList.contains('active')) loadRfsData(); }
     
     const searchInput = document.getElementById('address-search');
     const resultsBox = document.getElementById('search-results');
-    searchInput.addEventListener('keyup', async (e) => {
-      if (e.key === 'Enter' && searchInput.value.length > 3) {
+    
+    // NEW: Search function to call on button click or Enter
+    async function performAddressSearch() {
         const query = searchInput.value;
+        if(query.length <= 3) return;
+        
         resultsBox.innerHTML = '<div style="padding:0.8rem; color:var(--text-soft);">Searching...</div>'; resultsBox.style.display = 'block';
-        try { const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=au`); const data = await res.json();
-          resultsBox.innerHTML = ''; if(data.length === 0) { resultsBox.innerHTML = '<div style="padding:0.8rem;">No results found.</div>'; return; }
-          data.forEach(place => { const div = document.createElement('div'); div.className = 'search-result-item'; div.innerText = place.display_name; div.onclick = () => { map.setView([place.lat, place.lon], 14); resultsBox.style.display = 'none'; searchInput.value = ''; }; resultsBox.appendChild(div); });
+        try { 
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=au`); 
+          const data = await res.json();
+          resultsBox.innerHTML = ''; 
+          if(data.length === 0) { resultsBox.innerHTML = '<div style="padding:0.8rem;">No results found.</div>'; return; }
+          data.forEach(place => { 
+            const div = document.createElement('div'); 
+            div.className = 'search-result-item'; 
+            div.innerText = place.display_name; 
+            div.onclick = () => { map.setView([place.lat, place.lon], 14); resultsBox.style.display = 'none'; searchInput.value = ''; }; 
+            resultsBox.appendChild(div); 
+          });
         } catch(err) { resultsBox.innerHTML = 'Error.'; }
-      }
+    }
+
+    searchInput.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') performAddressSearch();
     });
+    
     document.addEventListener('click', function(event) { if (!resultsBox.contains(event.target) && event.target !== searchInput) { resultsBox.style.display = 'none'; } });
 
     checkUser();
