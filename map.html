@@ -43,20 +43,60 @@
     .btn-toggle.active { background: rgba(255, 255, 255, 0.1); color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
     .btn-toggle.active#btn-user { border: 1px solid #a855f7; color: #d8b4fe; }
     .btn-toggle.active#btn-rfs { border: 1px solid #ef4444; color: #fca5a5; }
-    .btn-toggle:not(.active) { opacity: 0.6; text-decoration: line-through; text-decoration-thickness: 1.5px; }
+    .btn-toggle.active#btn-list { border: 1px solid #3b82f6; color: #93c5fd; }
+    .btn-toggle:not(.active) { opacity: 0.6; }
     .dot-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .btn-toggle.active .dot-indicator { box-shadow: 0 0 8px currentColor; }
 
-    /* SIDEBAR & BADGES */
+    /* SIDEBARS */
     .map-sidebar {
       width: 350px; background: rgba(15, 23, 42, 0.95); border-left: 1px solid rgba(148, 163, 184, 0.2);
       backdrop-filter: blur(12px); padding: 1.5rem; overflow-y: auto; position: absolute; right: 0; top: 0;
-      height: 100%; z-index: 1005; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 100%; transform: translateX(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.5);
     }
+    #list-sidebar { z-index: 1004; }
+    #incident-sidebar { z-index: 1005; }
+    
     .map-sidebar.open { transform: translateX(0); }
     .badge-type { background: #1e293b; border: 1px solid rgba(148, 163, 184, 0.35); color: #cbd5e1; font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 4px; margin-right: 0.25rem; display: inline-block; }
     
+    /* FILTER STYLES */
+    .filter-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
+    .filter-actions { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
+    .filter-actions:hover { text-decoration: underline; color: #fff; }
+
+    .filter-group { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    
+    .filter-pill { 
+      padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.7rem; text-transform: uppercase; 
+      /* Default (Inactive/Red) */
+      background: rgba(127, 29, 29, 0.6); 
+      border: 1px solid #ef4444; 
+      color: #fca5a5;
+      cursor: pointer; transition: all 0.15s; user-select: none; display: flex; align-items: center; gap: 6px;
+    }
+    .filter-pill:hover { background: rgba(185, 28, 28, 0.8); color: #fff; }
+    .filter-pill span.count { opacity: 0.7; font-size: 0.65rem; }
+
+    /* Active (Showing/Green) */
+    .filter-pill.active { 
+      background: rgba(21, 128, 61, 0.8) !important; 
+      border-color: #22c55e !important; 
+      color: #fff !important; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 600; 
+    }
+    .filter-pill.active:hover { background: rgba(22, 163, 74, 0.9) !important; }
+
+    /* LIST ITEMS */
+    .incident-list-item {
+      padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
+      transition: background 0.2s; border-radius: 6px; margin-bottom: 0.2rem;
+    }
+    .incident-list-item:hover { background: rgba(255,255,255,0.05); }
+    .incident-list-item h4 { margin: 0 0 0.2rem 0; font-size: 0.95rem; color: #fff; }
+    .incident-list-meta { font-size: 0.75rem; color: #94a3b8; display: flex; gap: 0.5rem; align-items: center; }
+
     .rfs-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 2s infinite; border-radius: 50%; }
     @keyframes pulse-red {
       0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -77,7 +117,7 @@
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">Forcequit <span>NSW PSN</span></div>
-    <div class="sidebar-subtitle">Operations Map</div>
+    <div class="sidebar-subtitle">Quick reference handbook for NSW Public Safety Network monitoring.</div>
     <div class="sidebar-section-label">Sections</div>
     <nav class="sidebar-nav">
       <a href="index.html">Home / Overview</a>
@@ -101,22 +141,12 @@
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
       <div>Hosted by Forcequit</div>
       <div style="margin-top:0.45rem;">
-        <a
-          class="listen-btn-wide"
-          href="https://radio.forcequit.xyz/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a class="listen-btn-wide" href="https://radio.forcequit.xyz/" target="_blank" rel="noopener noreferrer">
           Live feed
         </a>
       </div>
       <div style="margin-top:0.45rem;">
-        <a
-          class="discord-btn-wide"
-          href="https://discord.gg/BthQzXj6Ck"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a class="discord-btn-wide" href="https://discord.gg/BthQzXj6Ck" target="_blank" rel="noopener noreferrer">
           Support Discord
         </a>
       </div>
@@ -139,6 +169,45 @@
         <button id="btn-rfs" class="btn-toggle active" onclick="toggleMapLayer('rfs')">
           <span class="dot-indicator" style="background:#ef4444;"></span> RFS
         </button>
+        <button id="btn-list" class="btn-toggle" onclick="toggleListSidebar()">
+          <span>📋</span> List
+        </button>
+      </div>
+
+      <div class="map-sidebar" id="list-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <h3 style="margin:0; color:#fff;">Incidents</h3>
+          <button class="btn btn-secondary" onclick="toggleListSidebar()" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Close ✕</button>
+        </div>
+        
+        <div class="filter-section" style="margin-bottom:0.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(148,163,184,0.2);">
+          
+          <div style="margin-bottom:1rem;">
+            <input type="text" id="filter-search" class="form-input" placeholder="Search town, street or type..." onkeyup="refreshMapAndList()" style="padding:0.5rem; font-size:0.85rem; border-radius:20px; background:rgba(0,0,0,0.3); border-color:rgba(255,255,255,0.1); color:#fff; width:100%;">
+          </div>
+
+          <div class="filter-header">
+            <label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Agencies</label>
+            <div style="display:flex; gap:8px;">
+              <span class="filter-actions" onclick="bulkFilter('agency', true)">All</span>
+              <span class="filter-actions" onclick="bulkFilter('agency', false)">None</span>
+            </div>
+          </div>
+          <div id="filter-container-agency" class="filter-group"></div>
+
+          <div class="filter-header" style="margin-top:1rem;">
+            <label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Specific Types</label>
+            <div style="display:flex; gap:8px;">
+              <span class="filter-actions" onclick="bulkFilter('type', true)">All</span>
+              <span class="filter-actions" onclick="bulkFilter('type', false)">None</span>
+            </div>
+          </div>
+          <div id="filter-container-type" class="filter-group"></div>
+        </div>
+      
+        <div id="incident-list-container" style="flex:1; overflow-y:auto;">
+          <div style="text-align:center; color:var(--text-soft); font-size:0.9rem; padding:2rem;">Loading incidents...</div>
+        </div>
       </div>
 
       <div class="map-sidebar" id="incident-sidebar">
@@ -171,95 +240,255 @@
     const userLayer = L.layerGroup().addTo(map);
     const rfsLayer = L.layerGroup().addTo(map);
 
-    // COLORS
-    // Note: 'VRA' is set to #000000 so it appears WHITE after inversion
-    const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#000000', 'AVIATION': '#a855f7' };
+    // Global Data
+    let unifiedIncidents = []; // Merged array of all items
     
-    // CHANGED: Default is now Black (#000000) so it INVERTS to White on the map
+    // Filter State: Keys = Category Values, Value = Boolean (Visible?)
+    // Default all true initially
+    let filterState = {
+      agency: {},
+      type: {}
+    };
+
+    // COLORS
+    const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#000000', 'AVIATION': '#a855f7' };
     const TYPE_COLORS = { 'FIRE': '#ef4444', 'RESCUE': '#ff6600', 'HAZARD': '#eab308', 'POLICE': '#3b82f6', 'MEDICAL': '#3b82f6', 'DEFAULT': '#000000' };
 
     function toggleMapLayer(target) {
       const btn = document.getElementById(target === 'user' ? 'btn-user' : 'btn-rfs');
       const layer = target === 'user' ? userLayer : rfsLayer;
-      if (map.hasLayer(layer)) { map.removeLayer(layer); btn.classList.remove('active'); } 
-      else { map.addLayer(layer); btn.classList.add('active'); }
-    }
-
-    // 1. USER PINS
-    async function loadIncidents() {
-      const nowISO = new Date().toISOString();
-      const { data: incidents, error } = await supabase.from('incidents').select('*').gt('expires_at', nowISO);
-      if (error) console.error(error);
       
-      userLayer.clearLayers();
-
-      if(incidents) {
-        incidents.forEach(inc => {
-          const style = getPinStyle(inc);
-          const iconHtml = `<div style="background:${style.background}; width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px ${style.glow}, 0 0 20px ${style.glow};"></div>`;
-          const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [30,30], iconAnchor: [15,15] });
-          const marker = L.marker([inc.lat, inc.lng], { icon: icon }).addTo(userLayer);
-          marker.on('click', () => showIncidentDetails(inc));
-        });
+      if (map.hasLayer(layer)) { 
+        map.removeLayer(layer); 
+        btn.classList.remove('active'); 
+      } else { 
+        map.addLayer(layer); 
+        btn.classList.add('active'); 
       }
+      refreshMapAndList();
     }
+    
+    function toggleListSidebar() { document.getElementById('list-sidebar').classList.toggle('open'); document.getElementById('btn-list').classList.toggle('active'); }
+    function closeIncidentSidebar() { document.getElementById('incident-sidebar').classList.remove('open'); }
 
-    // 2. RFS FEED
-    async function loadRfsFeed() {
+    // --- DATA LOADING ---
+    async function loadAllData() {
+      const nowISO = new Date().toISOString();
+      const { data: userIncidents } = await supabase.from('incidents').select('*').gt('expires_at', nowISO);
+      
+      let rfsItems = [];
       try {
         const res = await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.xml");
         const text = await res.text();
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, "text/xml");
         const items = xml.querySelectorAll("item");
-
-        rfsLayer.clearLayers();
-
-        items.forEach(item => {
+        
+        items.forEach((item, idx) => {
           const title = item.querySelector("title").textContent;
           const link = item.querySelector("link").textContent;
           const descHtml = item.querySelector("description").textContent;
           const pointStr = item.querySelector("point") ? item.querySelector("point").textContent : null;
-          const polygonStr = item.querySelector("polygon") ? item.querySelector("polygon").textContent : null;
-          const category = item.querySelector("category") ? item.querySelector("category").textContent : "Advice";
-
           const details = parseRfsDescription(descHtml);
           details.title = title; details.link = link;
 
-          // --- FIXED COLOR LOGIC ---
-          // Default is #000000 (Black) -> Inverts to White
-          let color = '#000000'; 
-          let pulseClass = '';
-          const catLower = category.toLowerCase();
+          let lat = null, lng = null;
+          if (pointStr) [lat, lng] = pointStr.split(' ').map(Number);
 
-          if(catLower.includes('emergency')) { color = '#ef4444'; pulseClass = 'rfs-pulse'; } // Red
-          else if(catLower.includes('watch')) { color = '#f97316'; } // Orange
-          else if(catLower.includes('advice')) { color = '#3b82f6'; } // Blue
-          else if(catLower.includes('not applicable')) { color = '#000000'; } // Explicitly Black -> White
-          
-          if (polygonStr) {
-            const coords = polygonStr.trim().split(' ').reduce((acc, val, i, arr) => {
-              if (i % 2 === 0) acc.push([parseFloat(val), parseFloat(arr[i+1])]);
-              return acc;
-            }, []);
-            L.polygon(coords, { color: color, weight: 2, fillOpacity: 0.3 }).addTo(rfsLayer).bindPopup(`<b>${title}</b><br>${category}`);
-            if(pointStr) {
-              const [lat, lng] = pointStr.split(' ').map(Number);
-              createRfsMarker(lat, lng, color, pulseClass, details);
-            }
-          } else if (pointStr) {
-            const [lat, lng] = pointStr.split(' ').map(Number);
-            createRfsMarker(lat, lng, color, pulseClass, details);
+          if(lat && lng) {
+            rfsItems.push({
+              id: `rfs-${idx}`, 
+              source: 'rfs',
+              title: title,
+              rawDetails: details,
+              typeDisplay: details.TYPE || 'Fire',
+              typesList: [details.TYPE || 'Fire'],
+              agenciesList: ['RFS'],
+              lat: lat, 
+              lng: lng,
+              alertLevel: (details['ALERT LEVEL'] || '').toLowerCase()
+            });
           }
         });
-      } catch (err) { console.error("RFS Feed Error:", err); }
+      } catch (e) { console.error("RFS Feed Error", e); }
+
+      unifiedIncidents = [];
+      if(userIncidents) {
+        userIncidents.forEach(inc => {
+          let displayType = Array.isArray(inc.type) ? inc.type.join(', ') : inc.type;
+          let typesList = Array.isArray(inc.type) ? inc.type : [inc.type];
+          
+          let agList = inc.responding_agencies || [];
+          if(agList.length === 0) agList = ['Other'];
+          
+          unifiedIncidents.push({
+            id: inc.id,
+            source: 'user',
+            title: inc.title,
+            rawDetails: inc,
+            typeDisplay: displayType,
+            typesList: typesList, 
+            agenciesList: agList, 
+            lat: inc.lat, 
+            lng: inc.lng
+          });
+        });
+      }
+      unifiedIncidents = [...unifiedIncidents, ...rfsItems];
+
+      // Initialize Filters for new keys (Default: Visible)
+      unifiedIncidents.forEach(item => {
+        item.agenciesList.forEach(a => {
+           if(!(a in filterState.agency)) filterState.agency[a] = true; 
+        });
+        item.typesList.forEach(t => {
+           if(!(t in filterState.type)) filterState.type[t] = true;
+        });
+      });
+
+      refreshMapAndList();
     }
 
-    function createRfsMarker(lat, lng, color, pulseClass, details) {
-      const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 8px ${color};"></div>`;
-      const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
-      const marker = L.marker([lat, lng], { icon: icon }).addTo(rfsLayer);
-      marker.on('click', () => showRfsDetails(details));
+    // --- CORE RENDER FUNCTION ---
+    function refreshMapAndList() {
+      const searchTerm = (document.getElementById('filter-search').value || '').toLowerCase();
+      const listContainer = document.getElementById('incident-list-container');
+      
+      const showUser = document.getElementById('btn-user').classList.contains('active');
+      const showRfs = document.getElementById('btn-rfs').classList.contains('active');
+
+      // 1. Calculate Counts
+      let counts = { agency: {}, type: {} };
+      Object.keys(filterState.agency).forEach(k => counts.agency[k] = 0);
+      Object.keys(filterState.type).forEach(k => counts.type[k] = 0);
+
+      const filteredItems = unifiedIncidents.filter(item => {
+        // Source Toggle Check
+        if(item.source === 'user' && !showUser) return false;
+        if(item.source === 'rfs' && !showRfs) return false;
+
+        // Tally totals
+        item.agenciesList.forEach(a => counts.agency[a] = (counts.agency[a] || 0) + 1);
+        item.typesList.forEach(t => counts.type[t] = (counts.type[t] || 0) + 1);
+
+        // Apply Logic
+        if (searchTerm && !item.title.toLowerCase().includes(searchTerm)) return false;
+        
+        // Agency Check: Show if AT LEAST ONE agency is enabled
+        const hasVisibleAgency = item.agenciesList.some(a => filterState.agency[a] === true);
+        if (!hasVisibleAgency) return false;
+        
+        // Type Check: Show if AT LEAST ONE type is enabled
+        const hasVisibleType = item.typesList.some(t => filterState.type[t] === true);
+        if (!hasVisibleType) return false;
+
+        return true;
+      });
+
+      // 2. Render Filter Buttons
+      renderFilterButtons('agency', counts.agency);
+      renderFilterButtons('type', counts.type);
+
+      // 3. Render Map Pins
+      userLayer.clearLayers();
+      rfsLayer.clearLayers();
+
+      filteredItems.forEach(item => {
+        if(item.source === 'user') {
+          const style = getPinStyle(item.rawDetails);
+          const iconHtml = `<div style="background:${style.background}; width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px ${style.glow}, 0 0 20px ${style.glow};"></div>`;
+          const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [30,30], iconAnchor: [15,15] });
+          const marker = L.marker([item.lat, item.lng], { icon: icon }).addTo(userLayer);
+          marker.on('click', () => showIncidentDetails(item.rawDetails));
+        } else {
+          let color = '#000000'; let pulseClass = '';
+          const al = item.alertLevel || '';
+          if(al.includes('emergency')) { color = '#ef4444'; pulseClass = 'rfs-pulse'; } 
+          else if(al.includes('watch')) { color = '#f97316'; } 
+          else if(al.includes('advice')) { color = '#3b82f6'; } 
+          
+          const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 8px ${color};"></div>`;
+          const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
+          const marker = L.marker([item.lat, item.lng], { icon: icon }).addTo(rfsLayer);
+          marker.on('click', () => showRfsDetails(item.rawDetails));
+        }
+      });
+
+      // 4. Render List
+      if (filteredItems.length === 0) {
+        listContainer.innerHTML = '<div style="padding:1rem; color:var(--text-soft); text-align:center;">No incidents found.</div>';
+        return;
+      }
+
+      listContainer.innerHTML = filteredItems.map(item => {
+        // Generate Agency Pills
+        const agencyBadges = item.agenciesList.map(ag => {
+            let badgeClass = 'pill-white';
+            const a = ag.toUpperCase();
+            if(a.includes('RFS')) badgeClass = 'pill-agency-rfs';
+            else if(a.includes('FRNSW')) badgeClass = 'pill-agency-frnsw';
+            else if(a.includes('NSWAS')) badgeClass = 'pill-agency-amb';
+            else if(a.includes('SES')) badgeClass = 'pill-agency-ses';
+            else if(a.includes('POLICE')) badgeClass = 'pill-blue';
+            else if(a.includes('VRA')) badgeClass = 'pill-white';
+            
+            return `<span class="pill ${badgeClass}" style="font-size:0.65rem;">${ag}</span>`;
+        }).join('');
+
+        return `
+          <div class="incident-list-item" onclick="panToItem('${item.id}')">
+            <h4>${item.title}</h4>
+            <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:0.3rem;">${item.typeDisplay}</div>
+            <div class="incident-list-meta" style="flex-wrap:wrap; gap:0.3rem;">
+              ${agencyBadges}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderFilterButtons(cat, counts) {
+      const container = document.getElementById(`filter-container-${cat}`);
+      const mapping = (cat === 'agency') 
+        ? { 'RFS': 'RFS', 'FRNSW': 'FRNSW', 'NSWAS': 'Ambulance', 'SES': 'SES', 'POLICE': 'Police' }
+        : {}; 
+
+      const keys = Object.keys(filterState[cat]).sort();
+      
+      container.innerHTML = keys.map(k => {
+        if(counts[k] === 0) return ''; 
+
+        const isActive = filterState[cat][k];
+        const label = mapping[k] || k;
+        const count = counts[k] || 0;
+        return `
+          <div class="filter-pill ${isActive ? 'active' : ''}" 
+               data-cat="${cat}" data-val="${k}"
+               onclick="toggleFilter('${cat}', '${k}')">
+            ${label} <span class="count">(${count})</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleFilter(cat, key) {
+      filterState[cat][key] = !filterState[cat][key];
+      refreshMapAndList();
+    }
+
+    function bulkFilter(cat, visible) {
+      Object.keys(filterState[cat]).forEach(k => filterState[cat][k] = visible);
+      refreshMapAndList();
+    }
+
+    // --- INTERACTION ---
+    function panToItem(id) {
+      const item = unifiedIncidents.find(i => i.id === id);
+      if(!item) return;
+      map.setView([item.lat, item.lng], 14);
+      if(item.source === 'user') showIncidentDetails(item.rawDetails);
+      else showRfsDetails(item.rawDetails);
+      if(window.innerWidth < 900) toggleListSidebar();
     }
 
     function parseRfsDescription(html) {
@@ -329,7 +558,6 @@
       `;
     }
 
-    function closeIncidentSidebar() { document.getElementById('incident-sidebar').classList.remove('open'); }
     function getAgencyClass(agency) { const a = agency.toUpperCase(); if(a.includes('RFS')) return 'pill pill-agency-rfs'; if(a.includes('FRNSW')) return 'pill pill-agency-frnsw'; if(a.includes('NSWAS')) return 'pill pill-agency-amb'; if(a.includes('SES')) return 'pill pill-agency-ses'; if(a.includes('POLICE')) return 'pill pill-blue'; if(a.includes('VRA')) return 'pill pill-white'; return 'pill pill-agency-util'; }
     function getPinStyle(inc) {
       let colors = [];
@@ -347,11 +575,10 @@
       }
       return { background: background, glow: colors[0] };
     }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.menu-overlay').classList.toggle('active'); }
-
-    loadIncidents();
-    loadRfsFeed();
-    setInterval(() => { loadIncidents(); loadRfsFeed(); }, 60000);
+    
+    // Init
+    loadAllData();
+    setInterval(loadAllData, 60000);
   </script>
 </body>
 </html>
