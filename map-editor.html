@@ -1,7 +1,3 @@
-{
-type: uploaded file
-fileName: akumascoffin/nswpsn/nswpsn-c10eceb71c74ab92eee4647dbd316dd52130ef5e/map-editor.html
-fullContent:
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,128 +10,61 @@ fullContent:
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
-    /* FORCED LAYOUT FIX */
     body, html { width: 100%; height: 100%; overflow: hidden; margin: 0; padding: 0; background: #0f172a; }
-    
-    #editor-layout-root {
-      position: absolute;
-      top: 0; left: 260px; right: 0; bottom: 0;
-      width: auto !important; height: 100% !important;
-      padding: 0 !important; margin: 0 !important;
-      max-width: none !important;
-    }
-
-    @media (max-width: 900px) {
-      #editor-layout-root { left: 0; top: 60px; height: calc(100% - 60px); }
-    }
-
+    #editor-layout-root { position: absolute; top: 0; left: 260px; right: 0; bottom: 0; width: auto !important; height: 100% !important; padding: 0 !important; margin: 0 !important; max-width: none !important; }
+    @media (max-width: 900px) { #editor-layout-root { left: 0; top: 60px; height: calc(100% - 60px); } }
     .map-container { width: 100%; height: 100%; position: relative; }
     #map { width: 100%; height: 100%; background: #0f172a; z-index: 1; }
+    
+    /* FIX FILTERS & DARK MODE */
+    .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-popup, .leaflet-tooltip { filter: none !important; }
+    .map-dark-mode .leaflet-layer, .map-dark-mode .leaflet-control-zoom-in, .map-dark-mode .leaflet-control-zoom-out, .map-dark-mode .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) !important; }
+    .map-dark-mode .leaflet-marker-icon, .map-dark-mode .leaflet-marker-shadow, .map-dark-mode .leaflet-popup, .map-dark-mode .leaflet-tooltip { filter: invert(100%) hue-rotate(180deg) !important; }
 
-    /* LOGIN PAGE STYLES */
-    #login-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #020617; z-index: 9999;
-      display: flex; align-items: center; justify-content: center; flex-direction: column;
-    }
-    .login-card {
-      background: #1e293b;
-      border: 1px solid rgba(148, 163, 184, 0.2);
-      border-radius: 12px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-      width: 360px;
-      max-width: 90%;
-      padding: 2.5rem;
-    }
-    .login-title {
-      text-align: center; margin-bottom: 2rem;
-      font-size: 1.5rem; font-weight: 700; color: #fff;
-      text-transform: uppercase; letter-spacing: 0.1em;
-    }
+    /* CONTROLS */
+    .map-type-controls { position: absolute; bottom: 30px; left: 20px; z-index: 800; display: flex; gap: 6px; background: rgba(15, 23, 42, 0.9); padding: 6px 10px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .btn-toggle { background: transparent; border: none; color: #cbd5e1; padding: 6px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease; text-transform: uppercase; letter-spacing: 0.05em; }
+    .btn-toggle:hover { color: #fff; background: rgba(255,255,255,0.1); }
+    .btn-toggle.active.map-type-btn { border: 1px solid #f97316; color: #fdba74; }
+    .btn-toggle:not(.active) { opacity: 0.6; }
+
+    /* LOGIN & FORM */
+    #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020617; z-index: 9999; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    .login-card { background: #1e293b; border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 12px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); width: 360px; max-width: 90%; padding: 2.5rem; }
+    .login-title { text-align: center; margin-bottom: 2rem; font-size: 1.5rem; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.1em; }
     .login-title span { color: #f97316; }
-    .login-subtitle {
-      text-align: center; color: #94a3b8; font-size: 0.9rem;
-      margin-top: -1.5rem; margin-bottom: 2rem;
-    }
+    .login-subtitle { text-align: center; color: #94a3b8; font-size: 0.9rem; margin-top: -1.5rem; margin-bottom: 2rem; }
     .login-group { margin-bottom: 1.2rem; }
-    .login-label {
-      display: block; color: #cbd5e1; font-size: 0.8rem;
-      text-transform: uppercase; letter-spacing: 0.05em;
-      margin-bottom: 0.5rem; font-weight: 600;
-    }
-    .login-input {
-      width: 100%; padding: 0.75rem; background: rgba(2, 6, 23, 0.5);
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      border-radius: 8px; color: #fff; font-size: 0.95rem;
-      transition: border-color 0.2s; box-sizing: border-box;
-    }
+    .login-label { display: block; color: #cbd5e1; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; font-weight: 600; }
+    .login-input { width: 100%; padding: 0.75rem; background: rgba(2, 6, 23, 0.5); border: 1px solid rgba(148, 163, 184, 0.25); border-radius: 8px; color: #fff; font-size: 0.95rem; transition: border-color 0.2s; box-sizing: border-box; }
     .login-input:focus { outline: none; border-color: #f97316; }
-    .login-btn {
-      width: 100%; padding: 0.8rem; background: #f97316;
-      color: #fff; border: none; border-radius: 8px;
-      font-weight: 700; cursor: pointer; text-transform: uppercase;
-      letter-spacing: 0.05em; font-size: 0.9rem; margin-top: 1rem;
-      transition: background 0.2s;
-    }
+    .login-btn { width: 100%; padding: 0.8rem; background: #f97316; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.9rem; margin-top: 1rem; transition: background 0.2s; }
     .login-btn:hover { background: #ea580c; }
     #login-error { color: #ef4444; font-size: 0.85rem; margin-top: 1.2rem; text-align: center; min-height: 1.2em; }
-
-    /* LOG EDITOR STYLES */
-    .btn-xs { padding: 0.2rem 0.5rem; font-size: 0.7rem; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #cbd5e1; transition: all 0.2s; }
-    .btn-xs:hover { background: rgba(255,255,255,0.1); color: #fff; }
-    .btn-xs.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .btn-xs.text-red { color: #fca5a5; border-color: rgba(239, 68, 68, 0.3); }
-    .btn-xs.text-red:hover { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
-    
-    .log-item { background: rgba(0,0,0,0.2); padding: 0.8rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.8rem; }
-    .log-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; font-size: 0.75rem; color: var(--text-soft); }
-    .log-body { font-size: 0.9rem; line-height: 1.5; color: #e2e8f0; }
   </style>
 </head>
 <body>
   <aside class="sidebar" id="sidebar" style="z-index:1001;">
     <div class="sidebar-logo">Forcequit <span>Editor</span></div>
     <div class="sidebar-subtitle">Authorized Access Only</div>
-    
     <nav class="sidebar-nav">
       <a href="map.html">← Back to Public Map</a>
-      <div id="auth-controls" style="margin-top:1.5rem; padding:1rem; background:rgba(255,255,255,0.03); border-radius:8px;">
-        <p style="font-size:0.8rem; color:var(--text-soft); margin:0;">Status: Checking...</p>
-      </div>
-
+      <div id="auth-controls" style="margin-top:1.5rem; padding:1rem; background:rgba(255,255,255,0.03); border-radius:8px;"><p style="font-size:0.8rem; color:var(--text-soft); margin:0;">Status: Checking...</p></div>
       <div id="password-tools" style="display:none; margin-top:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
         <div class="sidebar-section-label">Password Change</div>
         <div style="background:#1e293b; padding:1rem; border-radius:8px; border:1px solid var(--border-subtle);">
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label class="form-label">Old Password</label>
-            <input type="password" id="old-pass" class="form-input" placeholder="Current password">
-          </div>
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label class="form-label">New Password</label>
-            <input type="password" id="new-pass-1" class="form-input" placeholder="New password">
-          </div>
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label class="form-label">Confirm New Password</label>
-            <input type="password" id="new-pass-2" class="form-input" placeholder="Confirm new password">
-          </div>
-          <button class="btn btn-secondary btn-block" onclick="changeUserPassword()">Update Password</button>
-          <div id="pwd-msg" style="font-size:0.75rem; margin-top:0.5rem; min-height:1rem;"></div>
+          <div class="form-group" style="margin-bottom:0.8rem;"><label class="form-label">Old Password</label><input type="password" id="old-pass" class="form-input" placeholder="Current password"></div>
+          <div class="form-group" style="margin-bottom:0.8rem;"><label class="form-label">New Password</label><input type="password" id="new-pass-1" class="form-input" placeholder="New password"></div>
+          <div class="form-group" style="margin-bottom:0.8rem;"><label class="form-label">Confirm New Password</label><input type="password" id="new-pass-2" class="form-input" placeholder="Confirm new password"></div>
+          <button class="btn btn-secondary btn-block" onclick="changeUserPassword()">Update Password</button><div id="pwd-msg" style="font-size:0.75rem; margin-top:0.5rem; min-height:1rem;"></div>
         </div>
       </div>
-
       <div id="admin-tools" style="display:none; margin-top:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
         <div class="sidebar-section-label">User Management</div>
         <div style="background:#1e293b; padding:1rem; border-radius:8px; border:1px solid var(--border-subtle);">
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label class="form-label">New User Email</label>
-            <input type="email" id="new-user-email" class="form-input" placeholder="email@example.com">
-          </div>
-          <div class="form-group" style="margin-bottom:0.8rem;">
-            <label class="form-label">Password</label>
-            <input type="password" id="new-user-pass" class="form-input" placeholder="Min 6 chars">
-          </div>
-          <button class="btn btn-secondary btn-block" onclick="createNewUser()">Create Editor Account</button>
-          <div id="user-msg" style="font-size:0.75rem; margin-top:0.5rem; min-height:1rem;"></div>
+          <div class="form-group" style="margin-bottom:0.8rem;"><label class="form-label">New User Email</label><input type="email" id="new-user-email" class="form-input" placeholder="email@example.com"></div>
+          <div class="form-group" style="margin-bottom:0.8rem;"><label class="form-label">Password</label><input type="password" id="new-user-pass" class="form-input" placeholder="Min 6 chars"></div>
+          <button class="btn btn-secondary btn-block" onclick="createNewUser()">Create Editor Account</button><div id="user-msg" style="font-size:0.75rem; margin-top:0.5rem; min-height:1rem;"></div>
         </div>
       </div>
     </nav>
@@ -145,156 +74,78 @@ fullContent:
     <div class="login-card">
       <div class="login-title">Forcequit <span>Editor</span></div>
       <div class="login-subtitle">Restricted Access System</div>
-      
-      <div class="login-group">
-        <label class="login-label">Email Address</label>
-        <input type="email" id="login-email" class="login-input" placeholder="name@forcequit.xyz">
-      </div>
-      <div class="login-group">
-        <label class="login-label">Password</label>
-        <input type="password" id="login-pass" class="login-input" placeholder="••••••••">
-      </div>
-      
-      <button class="login-btn" onclick="doLogin()">Authenticate</button>
-      <div id="login-error"></div>
+      <div class="login-group"><label class="login-label">Email Address</label><input type="email" id="login-email" class="login-input" placeholder="name@forcequit.xyz"></div>
+      <div class="login-group"><label class="login-label">Password</label><input type="password" id="login-pass" class="login-input" placeholder="••••••••"></div>
+      <button class="login-btn" onclick="doLogin()">Authenticate</button><div id="login-error"></div>
     </div>
   </div>
 
   <main class="main" id="editor-layout-root">
     <div class="map-container">
       <div id="map"></div>
-      
+      <div class="map-type-controls">
+        <button class="btn-toggle map-type-btn active" id="btn-type-dark" onclick="setMapType('dark')">Dark</button>
+        <button class="btn-toggle map-type-btn" id="btn-type-sat" onclick="setMapType('sat')">Sat</button>
+        <button class="btn-toggle map-type-btn" id="btn-type-topo" onclick="setMapType('topo')">Topo</button>
+      </div>
       <div class="map-sidebar open" id="editor-panel">
         <h3 style="margin-top:0; color:#fff;">Map Controls</h3>
-        <div class="form-group" style="position:relative; margin-bottom:1rem;">
-          <label class="form-label">Jump to Location</label>
-          <input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off">
-          <div id="search-results" class="search-results"></div>
-        </div>
-        <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;">
-          <button class="btn btn-primary btn-block" id="btn-add-mode" onclick="toggleAddMode()">+ Add Pin</button>
-          <button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button>
-        </div>
+        <div class="form-group" style="position:relative; margin-bottom:1rem;"><label class="form-label">Jump to Location</label><input type="text" id="address-search" class="form-input" placeholder="Search town or address..." autocomplete="off"><div id="search-results" class="search-results"></div></div>
+        <div style="display:flex; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary btn-block" id="btn-add-mode" onclick="toggleAddMode()">+ Add Pin</button><button class="btn btn-secondary" onclick="refreshData()" title="Reload Data">↻</button></div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin-bottom:1.5rem;">
-        
         <div id="selection-editor" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-            <h4 style="margin:0; color:var(--accent);">Edit Incident</h4>
-            <span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span>
-          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;"><h4 style="margin:0; color:var(--accent);">Edit Incident</h4><span style="font-size:0.7rem; color:var(--text-soft);" id="edit-id-display"></span></div>
           <input type="hidden" id="edit-id">
-          
           <div class="form-group"><label class="form-label">Title</label><input type="text" id="edit-title" class="form-input"></div>
           
-          <div class="form-group">
-            <label class="form-label">Auto-Remove In...</label>
-            <select id="edit-expiry" class="form-select" style="border-color:var(--accent);">
-              <option value="0">Keep Current Expiry</option>
-              <option value="1">1 Hour</option>
-              <option value="2">2 Hours</option>
-              <option value="4">4 Hours</option>
-              <option value="12">12 Hours</option>
-              <option value="24" selected>24 Hours (Default)</option>
-              <option value="48">48 Hours</option>
-            </select>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem;">
+            <div class="form-group"><label class="form-label">Status</label><input type="text" id="edit-status" class="form-input" placeholder="e.g. Going"></div>
+            <div class="form-group"><label class="form-label">Size</label><input type="text" id="edit-size" class="form-input" placeholder="e.g. 5 ha"></div>
           </div>
-          
+
+          <div class="form-group"><label class="form-label">Auto-Remove In...</label><select id="edit-expiry" class="form-select" style="border-color:var(--accent);"><option value="0">Keep Current Expiry</option><option value="1">1 Hour</option><option value="2">2 Hours</option><option value="4">4 Hours</option><option value="12">12 Hours</option><option value="24" selected>24 Hours (Default)</option><option value="48">48 Hours</option></select></div>
           <div class="form-group"><label class="form-label">Incident Type(s)</label><div id="type-checkboxes" style="display:flex; flex-wrap:wrap; gap:0.4rem; max-height:150px; overflow-y:auto; background:rgba(0,0,0,0.2); padding:0.5rem; border-radius:6px; border:1px solid var(--border-subtle);"></div></div>
-          
-          <div class="form-group">
-            <label class="form-label">Responding Agencies</label>
-            <div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes">
-              <label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label>
-              <label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label>
-              <label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label>
-              <label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label>
-              <label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label>
-              <label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label>
-            </div>
-            <style>
-              .pill-checkbox { display:flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.1); padding:0.2rem 0.6rem; border-radius:999px; font-size:0.75rem; cursor:pointer; user-select:none; border:1px solid transparent; }
-              .pill-checkbox:has(input:checked) { background:var(--accent); color:#fff; border-color:var(--accent); }
-              .pill-checkbox input { display:none; }
-            </style>
-          </div>
-          
+          <div class="form-group"><label class="form-label">Responding Agencies</label><div style="display:flex; flex-wrap:wrap; gap:0.5rem;" id="agency-checkboxes"><label class="pill-checkbox"><input type="checkbox" value="RFS"> RFS</label><label class="pill-checkbox"><input type="checkbox" value="FRNSW"> FRNSW</label><label class="pill-checkbox"><input type="checkbox" value="NSWAS"> NSWAS</label><label class="pill-checkbox"><input type="checkbox" value="SES"> SES</label><label class="pill-checkbox"><input type="checkbox" value="Police"> Police</label><label class="pill-checkbox"><input type="checkbox" value="VRA"> VRA</label></div></div>
           <div class="form-group"><label class="form-label">Description (Markdown)</label><textarea id="edit-desc" class="form-textarea" placeholder="Use **bold**, *italics*, or lists..."></textarea></div>
-          
-          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;">
-            <button class="btn btn-primary" onclick="saveIncident()">Save Changes</button>
-            <button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button>
-          </div>
-
-          <div style="margin-bottom:1.5rem; border-top:1px solid var(--border-subtle); padding-top:1rem;">
-            <label class="form-label">Incident Log</label>
-            <div id="editor-log-list" style="margin-bottom:1rem;"></div>
-            
-            <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;">
-              <label class="form-label" style="margin-bottom:0.3rem;">New Update</label>
-              <textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px; margin-bottom:0.5rem;"></textarea>
-              <button class="btn btn-secondary btn-block" onclick="addUpdate()">Post Update</button>
-            </div>
-          </div>
-
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-bottom:1.5rem;"><button class="btn btn-primary" onclick="saveIncident()">Save Changes</button><button class="btn btn-danger" onclick="deleteIncident()">Delete Pin</button></div>
+          <div style="background:rgba(255,255,255,0.03); padding:1rem; border-radius:8px;"><label class="form-label">Add Update Log</label><textarea id="new-update-msg" class="form-textarea" placeholder="Type update here..." style="min-height:60px;"></textarea><button class="btn btn-secondary btn-block" style="margin-top:0.5rem;" onclick="addUpdate()">Post Update</button></div>
         </div>
-        
-        <div id="instruction-text" style="color:var(--text-soft); font-size:0.9rem; text-align:center; margin-top:2rem;">
-          Select a pin to edit<br>or click <strong>+ Add Pin</strong> to create new.
-        </div>
+        <div id="instruction-text" style="color:var(--text-soft); font-size:0.9rem; text-align:center; margin-top:2rem;">Select a pin to edit<br>or click <strong>+ Add Pin</strong> to create new.</div>
       </div>
     </div>
   </main>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // --- CONFIGURATION ---
     const SUPABASE_URL = 'https://wwcickcmezfrcqyclcuo.supabase.co'; 
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Y2lja2NtZXpmcmNxeWNsY3VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0ODI3NDIsImV4cCI6MjA4MDA1ODc0Mn0.xP9I9vAbBB-1afCpnOAwLJeoKTF2Dmewwv-aCKVXKrQ';
     const OWNER_EMAIL = 'd.lynks@outlook.com'; 
-
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const darkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB', subdomains: 'abcd', maxZoom: 19 });
+    const satBase = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { maxZoom: 21, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], maxNativeZoom: 19, attribution: '© Google' });
+    const topoBase = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: 'Map data: &copy; OpenStreetMap | Map style: &copy; OpenTopoMap', maxZoom: 17 });
 
     let map, markers = {};
     let addMode = false;
     let selectedId = null;
-    let currentLogData = {}; // Store updates for editing
 
-    const INCIDENT_TYPES = [
-      "Bush Fire", "Grass Fire", "Structure Fire", "MVA", "Transport", "Car / Vehicle Fire",
-      "Hazard Reduction", "Pile Burn", "Search / Rescue", "Assist Other Agency", "Animal Rescue",
-      "Building Fire", "Rescue", "Hazmat", "Salvage", "AFA",
-      "Cardiac Arrest", "Abdominal Pain", "Fracture", "Chest Pain", "Amb Collision", "Drug Overdose", "Suicide / Self-harm",
-      "Storm Damage", "Flood Rescue", "Road Crash Rescue", "Vertical Rescue", "General Land Rescue", "Assist Police", "Resupply",
-      "Police Operation", "Other"
-    ];
-
-    // COLORS
+    const INCIDENT_TYPES = [ "Bush Fire", "Grass Fire", "Structure Fire", "MVA", "Transport", "Car / Vehicle Fire", "Hazard Reduction", "Pile Burn", "Search / Rescue", "Assist Other Agency", "Animal Rescue", "Building Fire", "Rescue", "Hazmat", "Salvage", "AFA", "Cardiac Arrest", "Abdominal Pain", "Fracture", "Chest Pain", "Amb Collision", "Drug Overdose", "Suicide / Self-harm", "Storm Damage", "Flood Rescue", "Road Crash Rescue", "Vertical Rescue", "General Land Rescue", "Assist Police", "Resupply", "Police Operation", "Other" ];
     const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#ffffff', 'AVIATION': '#a855f7' };
     const TYPE_COLORS = { 'FIRE': '#ef4444', 'RESCUE': '#ff6600', 'HAZARD': '#eab308', 'POLICE': '#3b82f6', 'MEDICAL': '#3b82f6', 'DEFAULT': '#000000' };
 
-    // --- AUTHENTICATION ---
     async function checkUser() {
       const { data } = await supabase.auth.getSession();
       const session = data.session;
       if (session) {
         document.getElementById('login-overlay').style.display = 'none';
-        document.getElementById('password-tools').style.display = 'block'; 
-        
-        document.getElementById('auth-controls').innerHTML = `
-          <div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:0.2rem;">${session.user.email}</div>
-          <div style="font-size:0.75rem; color:#22c55e;">● Authenticated</div>
-          <button class="btn btn-danger" style="font-size:0.75rem; padding:0.3rem 0.6rem; width:100%; margin-top:0.8rem;" onclick="doLogout()">Logout</button>
-        `;
-        if (session.user.email.toLowerCase() === OWNER_EMAIL.toLowerCase()) {
-          document.getElementById('admin-tools').style.display = 'block';
-        }
+        document.getElementById('password-tools').style.display = 'block';
+        document.getElementById('auth-controls').innerHTML = `<div style="font-size:0.85rem; color:#fff; font-weight:600; margin-bottom:0.2rem;">${session.user.email}</div><div style="font-size:0.75rem; color:#22c55e;">● Authenticated</div><button class="btn btn-danger" style="font-size:0.75rem; padding:0.3rem 0.6rem; width:100%; margin-top:0.8rem;" onclick="doLogout()">Logout</button>`;
+        if (session.user.email.toLowerCase() === OWNER_EMAIL.toLowerCase()) document.getElementById('admin-tools').style.display = 'block';
         initMap();
         renderTypeCheckboxes();
-      } else {
-        document.getElementById('login-overlay').style.display = 'flex';
-      }
+      } else { document.getElementById('login-overlay').style.display = 'flex'; }
     }
-
     async function doLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-pass').value;
@@ -302,86 +153,46 @@ fullContent:
       const originalText = btn.textContent;
       btn.textContent = "Verifying...";
       const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { 
-        document.getElementById('login-error').innerText = error.message; 
-        btn.textContent = originalText; 
-      } 
-      else { checkUser(); }
+      if (error) { document.getElementById('login-error').innerText = error.message; btn.textContent = originalText; } else { checkUser(); }
     }
-
     async function doLogout() { await supabase.auth.signOut(); window.location.reload(); }
-    
     async function createNewUser() {
       const email = document.getElementById('new-user-email').value;
       const password = document.getElementById('new-user-pass').value;
       const msg = document.getElementById('user-msg');
       msg.textContent = "Creating...";
       const { error } = await supabase.auth.signUp({ email, password });
-      if (error) { msg.style.color = '#ef4444'; msg.innerText = error.message; }
-      else { msg.style.color = '#22c55e'; msg.innerText = "User created!"; document.getElementById('new-user-email').value = ''; document.getElementById('new-user-pass').value = ''; }
+      if (error) { msg.style.color = '#ef4444'; msg.innerText = error.message; } else { msg.style.color = '#22c55e'; msg.innerText = "User created!"; document.getElementById('new-user-email').value = ''; document.getElementById('new-user-pass').value = ''; }
     }
-
     async function changeUserPassword() {
       const oldPass = document.getElementById('old-pass').value;
       const newPass1 = document.getElementById('new-pass-1').value;
       const newPass2 = document.getElementById('new-pass-2').value;
       const msg = document.getElementById('pwd-msg');
-      
-      if(!oldPass || !newPass1 || !newPass2) {
-        msg.style.color = '#ef4444'; msg.innerText = "All fields required."; return;
-      }
-      if(newPass1 !== newPass2) {
-        msg.style.color = '#ef4444'; msg.innerText = "New passwords do not match."; return;
-      }
-
+      if(!oldPass || !newPass1 || !newPass2) { msg.style.color = '#ef4444'; msg.innerText = "All fields required."; return; }
+      if(newPass1 !== newPass2) { msg.style.color = '#ef4444'; msg.innerText = "New passwords do not match."; return; }
       msg.style.color = '#cbd5e1'; msg.innerText = "Verifying old password...";
-      
       const { data: { user } } = await supabase.auth.getUser();
       if(!user) { window.location.reload(); return; }
-
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: user.email, password: oldPass });
       if(signInError) { msg.style.color = '#ef4444'; msg.innerText = "Old password incorrect."; return; }
-
       msg.innerText = "Updating...";
       const { error: updateError } = await supabase.auth.updateUser({ password: newPass1 });
-
-      if(updateError) { msg.style.color = '#ef4444'; msg.innerText = updateError.message; } 
-      else {
-        msg.style.color = '#22c55e'; msg.innerText = "Password updated successfully.";
-        document.getElementById('old-pass').value = ''; document.getElementById('new-pass-1').value = ''; document.getElementById('new-pass-2').value = '';
-      }
+      if(updateError) { msg.style.color = '#ef4444'; msg.innerText = updateError.message; } else { msg.style.color = '#22c55e'; msg.innerText = "Password updated successfully."; document.getElementById('old-pass').value = ''; document.getElementById('new-pass-1').value = ''; document.getElementById('new-pass-2').value = ''; }
     }
+    function renderTypeCheckboxes() { const container = document.getElementById('type-checkboxes'); container.innerHTML = INCIDENT_TYPES.map(t => `<label style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; width:45%;"><input type="checkbox" value="${t}"> ${t}</label>`).join(''); }
 
-    function renderTypeCheckboxes() {
-      const container = document.getElementById('type-checkboxes');
-      container.innerHTML = INCIDENT_TYPES.map(t => `
-        <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; width:45%;">
-          <input type="checkbox" value="${t}"> ${t}
-        </label>
-      `).join('');
-    }
-
-    // --- MAP FUNCTIONS ---
     function initMap() {
       if(map) return;
-      map = L.map('map', { zoomControl: false }).setView([-33.8688, 151.2093], 7);
+      map = L.map('map', { zoomControl: false, layers: [darkBase] }).setView([-33.8688, 151.2093], 7);
+      document.getElementById('map').classList.add('map-dark-mode');
       L.control.zoom({ position: 'topright' }).addTo(map);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB', maxZoom: 19 }).addTo(map);
-
       map.on('click', async (e) => {
         if(addMode) {
           const title = prompt("Enter Title for new Incident:");
           if(title) {
             const expireTime = new Date(Date.now() + 24 * 3600000);
-            const { error } = await supabase.from('incidents').insert([{
-              title: title,
-              lat: e.latlng.lat,
-              lng: e.latlng.lng,
-              type: [], 
-              description: '',
-              responding_agencies: [],
-              expires_at: expireTime
-            }]);
+            const { error } = await supabase.from('incidents').insert([{ title: title, lat: e.latlng.lat, lng: e.latlng.lng, type: [], description: '', status: 'Going', size: '-', responding_agencies: [], expires_at: expireTime }]);
             if(error) alert(error.message); else { toggleAddMode(); loadIncidents(); }
           }
         } else { resetEditor(); }
@@ -389,26 +200,28 @@ fullContent:
       loadIncidents();
     }
 
+    function setMapType(type) {
+      map.removeLayer(darkBase); map.removeLayer(satBase); map.removeLayer(topoBase);
+      document.querySelectorAll('.map-type-btn').forEach(btn => btn.classList.remove('active'));
+      const mapDiv = document.getElementById('map');
+      if (type === 'dark') { map.addLayer(darkBase); mapDiv.classList.add('map-dark-mode'); document.getElementById('btn-type-dark').classList.add('active'); }
+      else if (type === 'sat') { map.addLayer(satBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-sat').classList.add('active'); }
+      else if (type === 'topo') { map.addLayer(topoBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-topo').classList.add('active'); }
+    }
+
     async function loadIncidents() {
       const { data: incidents } = await supabase.from('incidents').select('*');
-      Object.values(markers).forEach(m => map.removeLayer(m));
-      markers = {};
-
+      Object.values(markers).forEach(m => map.removeLayer(m)); markers = {};
       if(incidents) {
         incidents.forEach(inc => {
           const isExpired = new Date(inc.expires_at) < new Date();
           let style = getPinStyle(inc);
           if(isExpired) { style.background = '#475569'; style.glow = '#475569'; }
-
           const iconHtml = `<div style="background:${style.background}; width:24px; height:24px; border-radius:50%; border:3px solid #fff; box-shadow:0 0 10px ${style.glow}, 0 0 20px ${style.glow};"></div>`;
           const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [30,30], iconAnchor: [15,15] });
-
           const marker = L.marker([inc.lat, inc.lng], { icon: icon, draggable: true }).addTo(map);
           marker.on('click', (e) => { L.DomEvent.stopPropagation(e); selectIncident(inc); });
-          marker.on('dragend', async (e) => {
-            const newPos = e.target.getLatLng();
-            await supabase.from('incidents').update({ lat: newPos.lat, lng: newPos.lng }).eq('id', inc.id);
-          });
+          marker.on('dragend', async (e) => { const newPos = e.target.getLatLng(); await supabase.from('incidents').update({ lat: newPos.lat, lng: newPos.lng }).eq('id', inc.id); });
           markers[inc.id] = marker;
         });
       }
@@ -416,25 +229,13 @@ fullContent:
 
     function getPinStyle(inc) {
       let colors = [];
-      if (inc.responding_agencies && inc.responding_agencies.length > 0) {
-        inc.responding_agencies.forEach(a => { const c = AGENCY_COLORS[a.toUpperCase()]; if (c) colors.push(c); });
-      }
+      if (inc.responding_agencies && inc.responding_agencies.length > 0) { inc.responding_agencies.forEach(a => { const c = AGENCY_COLORS[a.toUpperCase()]; if (c) colors.push(c); }); }
       if (colors.length === 0) {
         const t = (Array.isArray(inc.type) ? inc.type.join(' ') : inc.type).toUpperCase();
-        if (t.includes('FIRE')) colors.push(TYPE_COLORS.FIRE);
-        else if (t.includes('RESCUE') || t.includes('MVA')) colors.push(TYPE_COLORS.RESCUE);
-        else if (t.includes('HAZARD')) colors.push(TYPE_COLORS.HAZARD);
-        else if (t.includes('POLICE')) colors.push(TYPE_COLORS.POLICE);
-        else if (t.includes('CARDIAC')) colors.push(TYPE_COLORS.MEDICAL);
-        else colors.push(TYPE_COLORS.DEFAULT);
+        if (t.includes('FIRE')) colors.push(TYPE_COLORS.FIRE); else if (t.includes('RESCUE') || t.includes('MVA')) colors.push(TYPE_COLORS.RESCUE); else if (t.includes('HAZARD')) colors.push(TYPE_COLORS.HAZARD); else if (t.includes('POLICE')) colors.push(TYPE_COLORS.POLICE); else if (t.includes('CARDIAC')) colors.push(TYPE_COLORS.MEDICAL); else colors.push(TYPE_COLORS.DEFAULT);
       }
       let background = colors[0];
-      if (colors.length > 1) {
-        const segment = 360 / colors.length;
-        let grad = 'conic-gradient(';
-        colors.forEach((c, i) => { grad += `${c} ${i * segment}deg ${(i + 1) * segment}deg${i < colors.length - 1 ? ', ' : ''}`; });
-        grad += ')'; background = grad;
-      }
+      if (colors.length > 1) { const segment = 360 / colors.length; let grad = 'conic-gradient('; colors.forEach((c, i) => { grad += `${c} ${i * segment}deg ${(i + 1) * segment}deg${i < colors.length - 1 ? ', ' : ''}`; }); grad += ')'; background = grad; }
       return { background: background, glow: colors[0] };
     }
 
@@ -442,130 +243,47 @@ fullContent:
       selectedId = inc.id;
       document.getElementById('selection-editor').style.display = 'block';
       document.getElementById('instruction-text').style.display = 'none';
-      
       document.getElementById('edit-id').value = inc.id;
       document.getElementById('edit-id-display').textContent = "ID: " + inc.id.split('-')[0];
       document.getElementById('edit-title').value = inc.title;
       document.getElementById('edit-desc').value = inc.description || '';
       document.getElementById('edit-expiry').value = "0";
+      
+      // LOAD STATUS AND SIZE
+      document.getElementById('edit-status').value = inc.status || '';
+      document.getElementById('edit-size').value = inc.size || '';
 
-      const typeInputs = document.querySelectorAll('#type-checkboxes input');
-      typeInputs.forEach(cb => cb.checked = false);
-      const incTypes = Array.isArray(inc.type) ? inc.type : [inc.type];
-      incTypes.forEach(t => { const match = Array.from(typeInputs).find(i => i.value === t); if(match) match.checked = true; });
-
-      const agencyInputs = document.querySelectorAll('#agency-checkboxes input');
-      agencyInputs.forEach(cb => cb.checked = false);
-      if (inc.responding_agencies) {
-        inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; });
-      }
+      const typeInputs = document.querySelectorAll('#type-checkboxes input'); typeInputs.forEach(cb => cb.checked = false);
+      const incTypes = Array.isArray(inc.type) ? inc.type : [inc.type]; incTypes.forEach(t => { const match = Array.from(typeInputs).find(i => i.value === t); if(match) match.checked = true; });
+      const agencyInputs = document.querySelectorAll('#agency-checkboxes input'); agencyInputs.forEach(cb => cb.checked = false);
+      if (inc.responding_agencies) { inc.responding_agencies.forEach(agency => { const match = Array.from(agencyInputs).find(i => i.value === agency); if(match) match.checked = true; }); }
       map.panTo([inc.lat, inc.lng]);
-      
-      // LOAD LOGS
-      loadEditorLogs(inc.id);
-    }
-
-    async function loadEditorLogs(incidentId) {
-      const container = document.getElementById('editor-log-list');
-      container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem;">Loading logs...</div>';
-      
-      const { data: updates } = await supabase.from('incident_updates').select('*').eq('incident_id', incidentId).order('created_at', { ascending: false });
-      
-      if(!updates || updates.length === 0) {
-        container.innerHTML = '<div style="color:var(--text-soft); font-size:0.8rem; font-style:italic;">No updates recorded.</div>';
-        currentLogData = {};
-        return;
-      }
-
-      currentLogData = {};
-      updates.forEach(u => currentLogData[u.id] = u);
-
-      container.innerHTML = updates.map(u => `
-        <div class="log-item" id="log-${u.id}">
-          <div class="log-meta">
-            <span>${new Date(u.created_at).toLocaleString()}</span>
-            <div style="display:flex; gap:0.4rem;">
-              <button class="btn-xs" onclick="enableEditLog('${u.id}')">Edit</button>
-              <button class="btn-xs text-red" onclick="deleteLog('${u.id}')">✕</button>
-            </div>
-          </div>
-          <div id="log-content-${u.id}" class="log-body markdown-body">${marked.parse(u.message)}</div>
-          
-          <div id="log-edit-ui-${u.id}" style="display:none; margin-top:0.5rem;">
-            <textarea id="log-edit-text-${u.id}" class="form-textarea" style="min-height:60px; font-size:0.85rem;"></textarea>
-            <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-              <button class="btn-xs btn-primary" onclick="saveLogEdit('${u.id}')">Save</button>
-              <button class="btn-xs" onclick="cancelLogEdit('${u.id}')">Cancel</button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function enableEditLog(id) {
-      document.getElementById(`log-content-${id}`).style.display = 'none';
-      document.getElementById(`log-edit-ui-${id}`).style.display = 'block';
-      document.getElementById(`log-edit-text-${id}`).value = currentLogData[id].message;
-    }
-
-    function cancelLogEdit(id) {
-      document.getElementById(`log-content-${id}`).style.display = 'block';
-      document.getElementById(`log-edit-ui-${id}`).style.display = 'none';
-    }
-
-    async function saveLogEdit(id) {
-      const newMsg = document.getElementById(`log-edit-text-${id}`).value;
-      if(!newMsg) return;
-      
-      const { error } = await supabase.from('incident_updates').update({ message: newMsg }).eq('id', id);
-      if(error) alert(error.message);
-      else loadEditorLogs(selectedId); // Refresh list
-    }
-
-    async function deleteLog(id) {
-      if(!confirm("Delete this log entry permanently?")) return;
-      const { error } = await supabase.from('incident_updates').delete().eq('id', id);
-      if(error) alert(error.message);
-      else loadEditorLogs(selectedId);
     }
 
     function resetEditor() { selectedId = null; document.getElementById('selection-editor').style.display = 'none'; document.getElementById('instruction-text').style.display = 'block'; }
-
-    function toggleAddMode() {
-      addMode = !addMode;
-      const btn = document.getElementById('btn-add-mode');
-      if(addMode) { btn.innerText = "Click Map to Place Pin"; btn.style.background = "#22c55e"; btn.style.color = "#fff"; document.getElementById('map').style.cursor = "crosshair"; } 
-      else { btn.innerText = "+ Add Pin"; btn.style.background = ""; btn.style.color = ""; document.getElementById('map').style.cursor = ""; }
-    }
-
+    function toggleAddMode() { addMode = !addMode; const btn = document.getElementById('btn-add-mode'); if(addMode) { btn.innerText = "Click Map to Place Pin"; btn.style.background = "#22c55e"; btn.style.color = "#fff"; document.getElementById('map').style.cursor = "crosshair"; } else { btn.innerText = "+ Add Pin"; btn.style.background = ""; btn.style.color = ""; document.getElementById('map').style.cursor = ""; } }
     async function saveIncident() {
       if(!selectedId) return;
       const agencies = Array.from(document.querySelectorAll('#agency-checkboxes input:checked')).map(cb => cb.value);
       const types = Array.from(document.querySelectorAll('#type-checkboxes input:checked')).map(cb => cb.value);
-      const updates = { title: document.getElementById('edit-title').value, type: types, description: document.getElementById('edit-desc').value, responding_agencies: agencies, updated_at: new Date() };
+      const updates = { 
+        title: document.getElementById('edit-title').value, 
+        type: types, 
+        description: document.getElementById('edit-desc').value,
+        status: document.getElementById('edit-status').value, // SAVE STATUS
+        size: document.getElementById('edit-size').value,     // SAVE SIZE
+        responding_agencies: agencies, 
+        updated_at: new Date() 
+      };
       const expiryOption = parseInt(document.getElementById('edit-expiry').value);
       if (expiryOption > 0) { updates.expires_at = new Date(Date.now() + expiryOption * 3600000); }
       const { error } = await supabase.from('incidents').update(updates).eq('id', selectedId);
       if(error) alert(error.message); else { alert("Saved."); loadIncidents(); }
     }
-
     async function deleteIncident() { if(!selectedId || !confirm("Delete?")) return; const { error } = await supabase.from('incidents').delete().eq('id', selectedId); if(!error) { resetEditor(); loadIncidents(); } else { alert(error.message); } }
-    
-    async function addUpdate() { 
-      if(!selectedId) return; 
-      const msg = document.getElementById('new-update-msg').value; 
-      if(!msg) return; 
-      const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); 
-      if(error) alert(error.message); 
-      else { 
-        document.getElementById('new-update-msg').value = ''; 
-        loadEditorLogs(selectedId); 
-      } 
-    }
-    
+    async function addUpdate() { if(!selectedId) return; const msg = document.getElementById('new-update-msg').value; if(!msg) return; const { error } = await supabase.from('incident_updates').insert([{ incident_id: selectedId, message: msg }]); if(error) alert(error.message); else { document.getElementById('new-update-msg').value = ''; alert("Update posted."); } }
     function refreshData() { loadIncidents(); }
     
-    // Search
     const searchInput = document.getElementById('address-search');
     const resultsBox = document.getElementById('search-results');
     searchInput.addEventListener('keyup', async (e) => {
@@ -584,4 +302,3 @@ fullContent:
   </script>
 </body>
 </html>
-}

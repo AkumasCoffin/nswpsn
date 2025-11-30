@@ -27,13 +27,21 @@
     .map-container { width: 100%; height: 100%; position: relative; }
     #map { width: 100%; height: 100%; background: #0f172a; z-index: 1; }
 
-    /* TOGGLES */
+    /* CONTROLS & TOGGLES */
     .layer-toggles {
       position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 800;
       display: flex; gap: 10px; background: rgba(15, 23, 42, 0.9); padding: 6px 12px;
       border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
     }
+    
+    .map-type-controls {
+      position: absolute; bottom: 30px; left: 20px; z-index: 800;
+      display: flex; gap: 6px; background: rgba(15, 23, 42, 0.9); padding: 6px 10px;
+      border-radius: 50px; border: 1px solid rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+
     .btn-toggle {
       background: transparent; border: none; color: #cbd5e1; padding: 6px 10px; border-radius: 20px;
       font-size: 0.75rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;
@@ -44,6 +52,7 @@
     .btn-toggle.active#btn-user { border: 1px solid #a855f7; color: #d8b4fe; }
     .btn-toggle.active#btn-rfs { border: 1px solid #ef4444; color: #fca5a5; }
     .btn-toggle.active#btn-list { border: 1px solid #3b82f6; color: #93c5fd; }
+    .btn-toggle.active.map-type-btn { border: 1px solid #f97316; color: #fdba74; }
     .btn-toggle:not(.active) { opacity: 0.6; }
     .dot-indicator { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
     .btn-toggle.active .dot-indicator { box-shadow: 0 0 8px currentColor; }
@@ -57,11 +66,9 @@
     }
     #list-sidebar { z-index: 1004; }
     #incident-sidebar { z-index: 1005; }
-    
     .map-sidebar.open { transform: translateX(0); }
-    .badge-type { background: #1e293b; border: 1px solid rgba(148, 163, 184, 0.35); color: #cbd5e1; font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 4px; margin-right: 0.25rem; display: inline-block; }
     
-    /* FILTER STYLES */
+    /* FILTER STYLES (RESTORED) */
     .filter-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; }
     .filter-actions { font-size: 0.7rem; color: var(--accent); cursor: pointer; text-transform: uppercase; letter-spacing: 0.05em; }
     .filter-actions:hover { text-decoration: underline; color: #fff; }
@@ -87,22 +94,31 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: 600; 
     }
     .filter-pill.active:hover { background: rgba(22, 163, 74, 0.9) !important; }
-
-    /* LIST ITEMS */
-    .incident-list-item {
-      padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;
-      transition: background 0.2s; border-radius: 6px; margin-bottom: 0.2rem;
-    }
+    
+    /* LIST ITEMS & BADGES */
+    .incident-list-item { padding: 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: background 0.2s; border-radius: 6px; margin-bottom: 0.2rem; }
     .incident-list-item:hover { background: rgba(255,255,255,0.05); }
-    .incident-list-item h4 { margin: 0 0 0.2rem 0; font-size: 0.95rem; color: #fff; }
+    .incident-list-item h4 { margin: 0 0 0.3rem 0; font-size: 0.95rem; color: #fff; }
     .incident-list-meta { font-size: 0.75rem; color: #94a3b8; display: flex; gap: 0.5rem; align-items: center; }
-
+    
+    .pill-meta { font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid rgba(148,163,184,0.3); color: #cbd5e1; background: rgba(30, 41, 59, 0.5); display: inline-block; }
+    
     .rfs-pulse { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 2s infinite; border-radius: 50%; }
-    @keyframes pulse-red {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-    }
+    @keyframes pulse-red { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+    /* RESET FILTERS */
+    .leaflet-layer, .leaflet-control-zoom-in, .leaflet-control-zoom-out, .leaflet-control-attribution,
+    .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-popup, .leaflet-tooltip { filter: none !important; }
+
+    /* DARK MODE (Only applies when 'Dark' button is clicked) */
+    .map-dark-mode .leaflet-layer,
+    .map-dark-mode .leaflet-control-zoom-in,
+    .map-dark-mode .leaflet-control-zoom-out,
+    .map-dark-mode .leaflet-control-attribution { filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%) !important; }
+    .map-dark-mode .leaflet-marker-icon,
+    .map-dark-mode .leaflet-marker-shadow,
+    .map-dark-mode .leaflet-popup,
+    .map-dark-mode .leaflet-tooltip { filter: invert(100%) hue-rotate(180deg) !important; }
   </style>
 </head>
 <body>
@@ -129,95 +145,63 @@
       <a href="aviation.html">Aviation &amp; Callsigns</a>
       <a href="links.html">Useful Links</a>
     </nav>
-
     <div class="sidebar-section-label">Legal</div>
     <nav class="sidebar-nav">
       <a href="terms.html">Terms &amp; Conditions</a>
       <a href="privacy.html">Privacy Policy</a>
     </nav>
-
     <div class="sidebar-section-label">Live Scanner</div>
     <div class="sidebar-highlight">
       <div class="sidebar-highlight-title">NSW PSN Scanner</div>
       <div>Hosted by Forcequit</div>
       <div style="margin-top:0.45rem;">
-        <a class="listen-btn-wide" href="https://radio.forcequit.xyz/" target="_blank" rel="noopener noreferrer">
-          Live feed
-        </a>
+        <a class="listen-btn-wide" href="https://radio.forcequit.xyz/" target="_blank" rel="noopener noreferrer">Live feed</a>
       </div>
       <div style="margin-top:0.45rem;">
-        <a class="discord-btn-wide" href="https://discord.gg/BthQzXj6Ck" target="_blank" rel="noopener noreferrer">
-          Support Discord
-        </a>
+        <a class="discord-btn-wide" href="https://discord.gg/BthQzXj6Ck" target="_blank" rel="noopener noreferrer">Support Discord</a>
       </div>
-      <div style="margin-top:0.25rem; font-size:0.7rem; color:var(--text-soft);">
-        radio.forcequit.xyz
-      </div>
+      <div style="margin-top:0.25rem; font-size:0.7rem; color:var(--text-soft);">radio.forcequit.xyz</div>
     </div>
-    
     <div class="sidebar-footer">NSW PSN Reference · Forcequit</div>
   </aside>
 
   <main class="main" id="map-layout-root">
     <div class="map-container">
       <div id="map"></div>
-      
       <div class="layer-toggles">
-        <button id="btn-user" class="btn-toggle active" onclick="toggleMapLayer('user')">
-          <span class="dot-indicator" style="background:#a855f7;"></span> User
-        </button>
-        <button id="btn-rfs" class="btn-toggle active" onclick="toggleMapLayer('rfs')">
-          <span class="dot-indicator" style="background:#ef4444;"></span> RFS
-        </button>
-        <button id="btn-list" class="btn-toggle" onclick="toggleListSidebar()">
-          <span>📋</span> List
-        </button>
+        <button id="btn-user" class="btn-toggle active" onclick="toggleMapLayer('user')"><span class="dot-indicator" style="background:#a855f7;"></span> User</button>
+        <button id="btn-rfs" class="btn-toggle active" onclick="toggleMapLayer('rfs')"><span class="dot-indicator" style="background:#ef4444;"></span> RFS</button>
+        <button id="btn-list" class="btn-toggle" onclick="toggleListSidebar()"><span>📋</span> List</button>
       </div>
-
+      <div class="map-type-controls">
+        <button class="btn-toggle map-type-btn active" id="btn-type-dark" onclick="setMapType('dark')">Dark</button>
+        <button class="btn-toggle map-type-btn" id="btn-type-sat" onclick="setMapType('sat')">Sat</button>
+        <button class="btn-toggle map-type-btn" id="btn-type-topo" onclick="setMapType('topo')">Topo</button>
+      </div>
       <div class="map-sidebar" id="list-sidebar">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
           <h3 style="margin:0; color:#fff;">Incidents</h3>
           <button class="btn btn-secondary" onclick="toggleListSidebar()" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Close ✕</button>
         </div>
-        
         <div class="filter-section" style="margin-bottom:0.5rem; padding-bottom:1rem; border-bottom:1px solid rgba(148,163,184,0.2);">
-          
           <div style="margin-bottom:1rem;">
             <input type="text" id="filter-search" class="form-input" placeholder="Search town, street or type..." onkeyup="refreshMapAndList()" style="padding:0.5rem; font-size:0.85rem; border-radius:20px; background:rgba(0,0,0,0.3); border-color:rgba(255,255,255,0.1); color:#fff; width:100%;">
           </div>
-
-          <div class="filter-header">
-            <label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Agencies</label>
-            <div style="display:flex; gap:8px;">
-              <span class="filter-actions" onclick="bulkFilter('agency', true)">All</span>
-              <span class="filter-actions" onclick="bulkFilter('agency', false)">None</span>
-            </div>
-          </div>
+          <div class="filter-header"><label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Agencies</label><div style="display:flex; gap:8px;"><span class="filter-actions" onclick="bulkFilter('agency', true)">All</span><span class="filter-actions" onclick="bulkFilter('agency', false)">None</span></div></div>
           <div id="filter-container-agency" class="filter-group"></div>
-
-          <div class="filter-header" style="margin-top:1rem;">
-            <label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Specific Types</label>
-            <div style="display:flex; gap:8px;">
-              <span class="filter-actions" onclick="bulkFilter('type', true)">All</span>
-              <span class="filter-actions" onclick="bulkFilter('type', false)">None</span>
-            </div>
-          </div>
+          <div class="filter-header" style="margin-top:1rem;"><label class="form-label" style="font-size:0.7rem; color:#94a3b8; margin:0;">Specific Types</label><div style="display:flex; gap:8px;"><span class="filter-actions" onclick="bulkFilter('type', true)">All</span><span class="filter-actions" onclick="bulkFilter('type', false)">None</span></div></div>
           <div id="filter-container-type" class="filter-group"></div>
         </div>
-      
         <div id="incident-list-container" style="flex:1; overflow-y:auto;">
           <div style="text-align:center; color:var(--text-soft); font-size:0.9rem; padding:2rem;">Loading incidents...</div>
         </div>
       </div>
-
       <div class="map-sidebar" id="incident-sidebar">
         <div style="display:flex; justify-content:flex-end;">
           <button class="btn btn-secondary" onclick="closeIncidentSidebar()" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Close ✕</button>
         </div>
         <div id="sidebar-content" style="margin-top:1rem;">
-          <div style="text-align:center; color:var(--text-soft); margin-top:2rem;">
-            Select a pin on the map<br>to view details.
-          </div>
+          <div style="text-align:center; color:var(--text-soft); margin-top:2rem;">Select a pin on the map<br>to view details.</div>
         </div>
       </div>
     </div>
@@ -225,90 +209,63 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // --- CONFIGURATION ---
     const SUPABASE_URL = 'https://wwcickcmezfrcqyclcuo.supabase.co'; 
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3Y2lja2NtZXpmcmNxeWNsY3VvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0ODI3NDIsImV4cCI6MjA4MDA1ODc0Mn0.xP9I9vAbBB-1afCpnOAwLJeoKTF2Dmewwv-aCKVXKrQ';
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const map = L.map('map', { zoomControl: false }).setView([-33.8688, 151.2093], 7);
+    const darkBase = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution: '&copy; CartoDB', subdomains: 'abcd', maxZoom: 19 });
+    const satBase = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', { maxZoom: 21, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'], maxNativeZoom: 19, attribution: '© Google' });
+    const topoBase = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution: 'Map data: &copy; OpenStreetMap | Map style: &copy; OpenTopoMap', maxZoom: 17 });
+
+    const map = L.map('map', { zoomControl: false, layers: [darkBase] }).setView([-33.8688, 151.2093], 7);
+    document.getElementById('map').classList.add('map-dark-mode');
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; CartoDB', subdomains: 'abcd', maxZoom: 19
-    }).addTo(map);
+    function setMapType(type) {
+      map.removeLayer(darkBase); map.removeLayer(satBase); map.removeLayer(topoBase);
+      document.querySelectorAll('.map-type-btn').forEach(btn => btn.classList.remove('active'));
+      const mapDiv = document.getElementById('map');
+      if (type === 'dark') { map.addLayer(darkBase); mapDiv.classList.add('map-dark-mode'); document.getElementById('btn-type-dark').classList.add('active'); }
+      else if (type === 'sat') { map.addLayer(satBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-sat').classList.add('active'); }
+      else if (type === 'topo') { map.addLayer(topoBase); mapDiv.classList.remove('map-dark-mode'); document.getElementById('btn-type-topo').classList.add('active'); }
+    }
 
     const userLayer = L.layerGroup().addTo(map);
     const rfsLayer = L.layerGroup().addTo(map);
-
-    // Global Data
-    let unifiedIncidents = []; // Merged array of all items
-    
-    // Filter State: Keys = Category Values, Value = Boolean (Visible?)
-    // Default all true initially
-    let filterState = {
-      agency: {},
-      type: {}
-    };
-
-    // COLORS
+    let unifiedIncidents = [], filterState = { agency: {}, type: {} };
     const AGENCY_COLORS = { 'RFS': '#ff6600', 'FRNSW': '#ef4444', 'NSWAS': '#3b82f6', 'SES': '#eab308', 'POLICE': '#3b82f6', 'VRA': '#000000', 'AVIATION': '#a855f7' };
     const TYPE_COLORS = { 'FIRE': '#ef4444', 'RESCUE': '#ff6600', 'HAZARD': '#eab308', 'POLICE': '#3b82f6', 'MEDICAL': '#3b82f6', 'DEFAULT': '#000000' };
 
     function toggleMapLayer(target) {
       const btn = document.getElementById(target === 'user' ? 'btn-user' : 'btn-rfs');
       const layer = target === 'user' ? userLayer : rfsLayer;
-      
-      if (map.hasLayer(layer)) { 
-        map.removeLayer(layer); 
-        btn.classList.remove('active'); 
-      } else { 
-        map.addLayer(layer); 
-        btn.classList.add('active'); 
-      }
+      if (map.hasLayer(layer)) { map.removeLayer(layer); btn.classList.remove('active'); } 
+      else { map.addLayer(layer); btn.classList.add('active'); }
       refreshMapAndList();
     }
     
     function toggleListSidebar() { document.getElementById('list-sidebar').classList.toggle('open'); document.getElementById('btn-list').classList.toggle('active'); }
     function closeIncidentSidebar() { document.getElementById('incident-sidebar').classList.remove('open'); }
 
-    // --- DATA LOADING ---
     async function loadAllData() {
       const nowISO = new Date().toISOString();
       const { data: userIncidents } = await supabase.from('incidents').select('*').gt('expires_at', nowISO);
-      
       let rfsItems = [];
       try {
         const res = await fetch("https://www.rfs.nsw.gov.au/feeds/majorIncidents.xml");
         const text = await res.text();
         const parser = new DOMParser();
         const xml = parser.parseFromString(text, "text/xml");
-        const items = xml.querySelectorAll("item");
-        
-        items.forEach((item, idx) => {
+        xml.querySelectorAll("item").forEach((item, idx) => {
           const title = item.querySelector("title").textContent;
           const link = item.querySelector("link").textContent;
           const descHtml = item.querySelector("description").textContent;
           const pointStr = item.querySelector("point") ? item.querySelector("point").textContent : null;
           const details = parseRfsDescription(descHtml);
           details.title = title; details.link = link;
-
           let lat = null, lng = null;
           if (pointStr) [lat, lng] = pointStr.split(' ').map(Number);
-
-          if(lat && lng) {
-            rfsItems.push({
-              id: `rfs-${idx}`, 
-              source: 'rfs',
-              title: title,
-              rawDetails: details,
-              typeDisplay: details.TYPE || 'Fire',
-              typesList: [details.TYPE || 'Fire'],
-              agenciesList: ['RFS'],
-              lat: lat, 
-              lng: lng,
-              alertLevel: (details['ALERT LEVEL'] || '').toLowerCase()
-            });
-          }
+          if(lat && lng) { rfsItems.push({ id: `rfs-${idx}`, source: 'rfs', title: title, rawDetails: details, typeDisplay: details.TYPE || 'Fire', typesList: [details.TYPE || 'Fire'], agenciesList: ['RFS'], lat: lat, lng: lng, alertLevel: (details['ALERT LEVEL'] || '').toLowerCase() }); }
         });
       } catch (e) { console.error("RFS Feed Error", e); }
 
@@ -317,81 +274,42 @@
         userIncidents.forEach(inc => {
           let displayType = Array.isArray(inc.type) ? inc.type.join(', ') : inc.type;
           let typesList = Array.isArray(inc.type) ? inc.type : [inc.type];
-          
           let agList = inc.responding_agencies || [];
           if(agList.length === 0) agList = ['Other'];
-          
-          unifiedIncidents.push({
-            id: inc.id,
-            source: 'user',
-            title: inc.title,
-            rawDetails: inc,
-            typeDisplay: displayType,
-            typesList: typesList, 
-            agenciesList: agList, 
-            lat: inc.lat, 
-            lng: inc.lng
-          });
+          unifiedIncidents.push({ id: inc.id, source: 'user', title: inc.title, rawDetails: inc, typeDisplay: displayType, typesList: typesList, agenciesList: agList, lat: inc.lat, lng: inc.lng });
         });
       }
       unifiedIncidents = [...unifiedIncidents, ...rfsItems];
-
-      // Initialize Filters for new keys (Default: Visible)
       unifiedIncidents.forEach(item => {
-        item.agenciesList.forEach(a => {
-           if(!(a in filterState.agency)) filterState.agency[a] = true; 
-        });
-        item.typesList.forEach(t => {
-           if(!(t in filterState.type)) filterState.type[t] = true;
-        });
+        item.agenciesList.forEach(a => { if(!(a in filterState.agency)) filterState.agency[a] = true; });
+        item.typesList.forEach(t => { if(!(t in filterState.type)) filterState.type[t] = true; });
       });
-
       refreshMapAndList();
     }
 
-    // --- CORE RENDER FUNCTION ---
     function refreshMapAndList() {
       const searchTerm = (document.getElementById('filter-search').value || '').toLowerCase();
       const listContainer = document.getElementById('incident-list-container');
-      
       const showUser = document.getElementById('btn-user').classList.contains('active');
       const showRfs = document.getElementById('btn-rfs').classList.contains('active');
-
-      // 1. Calculate Counts
       let counts = { agency: {}, type: {} };
       Object.keys(filterState.agency).forEach(k => counts.agency[k] = 0);
       Object.keys(filterState.type).forEach(k => counts.type[k] = 0);
 
       const filteredItems = unifiedIncidents.filter(item => {
-        // Source Toggle Check
         if(item.source === 'user' && !showUser) return false;
         if(item.source === 'rfs' && !showRfs) return false;
-
-        // Tally totals
         item.agenciesList.forEach(a => counts.agency[a] = (counts.agency[a] || 0) + 1);
         item.typesList.forEach(t => counts.type[t] = (counts.type[t] || 0) + 1);
-
-        // Apply Logic
         if (searchTerm && !item.title.toLowerCase().includes(searchTerm)) return false;
-        
-        // Agency Check: Show if AT LEAST ONE agency is enabled
-        const hasVisibleAgency = item.agenciesList.some(a => filterState.agency[a] === true);
-        if (!hasVisibleAgency) return false;
-        
-        // Type Check: Show if AT LEAST ONE type is enabled
-        const hasVisibleType = item.typesList.some(t => filterState.type[t] === true);
-        if (!hasVisibleType) return false;
-
+        if (!item.agenciesList.some(a => filterState.agency[a] === true)) return false;
+        if (!item.typesList.some(t => filterState.type[t] === true)) return false;
         return true;
       });
 
-      // 2. Render Filter Buttons
       renderFilterButtons('agency', counts.agency);
       renderFilterButtons('type', counts.type);
-
-      // 3. Render Map Pins
-      userLayer.clearLayers();
-      rfsLayer.clearLayers();
+      userLayer.clearLayers(); rfsLayer.clearLayers();
 
       filteredItems.forEach(item => {
         if(item.source === 'user') {
@@ -403,10 +321,7 @@
         } else {
           let color = '#000000'; let pulseClass = '';
           const al = item.alertLevel || '';
-          if(al.includes('emergency')) { color = '#ef4444'; pulseClass = 'rfs-pulse'; } 
-          else if(al.includes('watch')) { color = '#f97316'; } 
-          else if(al.includes('advice')) { color = '#3b82f6'; } 
-          
+          if(al.includes('emergency')) { color = '#ef4444'; pulseClass = 'rfs-pulse'; } else if(al.includes('watch')) { color = '#f97316'; } else if(al.includes('advice')) { color = '#3b82f6'; } 
           const iconHtml = `<div class="${pulseClass}" style="background:${color}; width:18px; height:18px; border-radius:50%; border:2px solid #fff; box-shadow:0 0 8px ${color};"></div>`;
           const icon = L.divIcon({ className: 'custom-pin', html: iconHtml, iconSize: [24,24], iconAnchor: [12,12] });
           const marker = L.marker([item.lat, item.lng], { icon: icon }).addTo(rfsLayer);
@@ -414,123 +329,74 @@
         }
       });
 
-      // 4. Render List
-      if (filteredItems.length === 0) {
-        listContainer.innerHTML = '<div style="padding:1rem; color:var(--text-soft); text-align:center;">No incidents found.</div>';
-        return;
-      }
+      if (filteredItems.length === 0) { listContainer.innerHTML = '<div style="padding:1rem; color:var(--text-soft); text-align:center;">No incidents found.</div>'; return; }
 
       listContainer.innerHTML = filteredItems.map(item => {
-        // Generate Agency Pills
         const agencyBadges = item.agenciesList.map(ag => {
             let badgeClass = 'pill-white';
             const a = ag.toUpperCase();
-            if(a.includes('RFS')) badgeClass = 'pill-agency-rfs';
-            else if(a.includes('FRNSW')) badgeClass = 'pill-agency-frnsw';
-            else if(a.includes('NSWAS')) badgeClass = 'pill-agency-amb';
-            else if(a.includes('SES')) badgeClass = 'pill-agency-ses';
-            else if(a.includes('POLICE')) badgeClass = 'pill-blue';
-            else if(a.includes('VRA')) badgeClass = 'pill-white';
-            
+            if(a.includes('RFS')) badgeClass = 'pill-agency-rfs'; else if(a.includes('FRNSW')) badgeClass = 'pill-agency-frnsw'; else if(a.includes('NSWAS')) badgeClass = 'pill-agency-amb'; else if(a.includes('SES')) badgeClass = 'pill-agency-ses'; else if(a.includes('POLICE')) badgeClass = 'pill-blue';
             return `<span class="pill ${badgeClass}" style="font-size:0.65rem;">${ag}</span>`;
         }).join('');
+        
+        // --- SAFE CHECK FOR BOTH RFS (UPPERCASE) AND USER (LOWERCASE) KEYS ---
+        const st = item.rawDetails.status || item.rawDetails.STATUS || '';
+        const sz = item.rawDetails.size || item.rawDetails.SIZE || '';
+        
+        const typeBadge = `<span class="pill-meta">${item.typeDisplay}</span>`;
+        const statusBadge = st ? `<span class="pill-meta">${st}</span>` : '';
+        const sizeBadge = sz ? `<span class="pill-meta">${sz}</span>` : '';
 
-        return `
-          <div class="incident-list-item" onclick="panToItem('${item.id}')">
-            <h4>${item.title}</h4>
-            <div style="font-size:0.8rem; color:#cbd5e1; margin-bottom:0.3rem;">${item.typeDisplay}</div>
-            <div class="incident-list-meta" style="flex-wrap:wrap; gap:0.3rem;">
-              ${agencyBadges}
-            </div>
+        return `<div class="incident-list-item" onclick="panToItem('${item.id}')">
+          <h4>${item.title}</h4>
+          <div style="margin-bottom:0.4rem; display:flex; gap:4px; flex-wrap:wrap;">
+            ${typeBadge}
+            ${statusBadge}
+            ${sizeBadge}
           </div>
-        `;
+          <div class="incident-list-meta" style="flex-wrap:wrap; gap:0.3rem;">${agencyBadges}</div>
+        </div>`;
       }).join('');
     }
 
     function renderFilterButtons(cat, counts) {
       const container = document.getElementById(`filter-container-${cat}`);
-      const mapping = (cat === 'agency') 
-        ? { 'RFS': 'RFS', 'FRNSW': 'FRNSW', 'NSWAS': 'Ambulance', 'SES': 'SES', 'POLICE': 'Police' }
-        : {}; 
-
+      const mapping = (cat === 'agency') ? { 'RFS': 'RFS', 'FRNSW': 'FRNSW', 'NSWAS': 'Ambulance', 'SES': 'SES', 'POLICE': 'Police' } : {}; 
       const keys = Object.keys(filterState[cat]).sort();
-      
       container.innerHTML = keys.map(k => {
         if(counts[k] === 0) return ''; 
-
         const isActive = filterState[cat][k];
         const label = mapping[k] || k;
         const count = counts[k] || 0;
-        return `
-          <div class="filter-pill ${isActive ? 'active' : ''}" 
-               data-cat="${cat}" data-val="${k}"
-               onclick="toggleFilter('${cat}', '${k}')">
-            ${label} <span class="count">(${count})</span>
-          </div>
-        `;
+        return `<div class="filter-pill ${isActive ? 'active' : ''}" data-cat="${cat}" data-val="${k}" onclick="toggleFilter('${cat}', '${k}')">${label} <span class="count">(${count})</span></div>`;
       }).join('');
     }
 
-    function toggleFilter(cat, key) {
-      filterState[cat][key] = !filterState[cat][key];
-      refreshMapAndList();
-    }
-
-    function bulkFilter(cat, visible) {
-      Object.keys(filterState[cat]).forEach(k => filterState[cat][k] = visible);
-      refreshMapAndList();
-    }
-
-    // --- INTERACTION ---
+    function toggleFilter(cat, key) { filterState[cat][key] = !filterState[cat][key]; refreshMapAndList(); }
+    function bulkFilter(cat, visible) { Object.keys(filterState[cat]).forEach(k => filterState[cat][k] = visible); refreshMapAndList(); }
     function panToItem(id) {
       const item = unifiedIncidents.find(i => i.id === id);
       if(!item) return;
       map.setView([item.lat, item.lng], 14);
-      if(item.source === 'user') showIncidentDetails(item.rawDetails);
-      else showRfsDetails(item.rawDetails);
+      if(item.source === 'user') showIncidentDetails(item.rawDetails); else showRfsDetails(item.rawDetails);
       if(window.innerWidth < 900) toggleListSidebar();
     }
-
     function parseRfsDescription(html) {
       const clean = html.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>?/gm, '');
       const lines = clean.split('\n');
       let data = {};
-      lines.forEach(line => {
-        const parts = line.split(':');
-        if(parts.length > 1) { data[parts[0].trim().toUpperCase()] = parts.slice(1).join(':').trim(); }
-      });
+      lines.forEach(line => { const parts = line.split(':'); if(parts.length > 1) { data[parts[0].trim().toUpperCase()] = parts.slice(1).join(':').trim(); } });
       return data;
     }
-
     function showRfsDetails(data) {
       const sidebar = document.getElementById('incident-sidebar');
       const content = document.getElementById('sidebar-content');
       sidebar.classList.add('open');
-      
       let badgeClass = "pill-white";
       const lvl = (data['ALERT LEVEL'] || '').toLowerCase();
-      if(lvl.includes('emergency')) badgeClass = "pill-red";
-      else if(lvl.includes('watch')) badgeClass = "pill-orange";
-      else if(lvl.includes('advice')) badgeClass = "pill-blue";
-
-      content.innerHTML = `
-        <div style="margin-bottom:0.5rem;">
-          <span class="pill pill-agency-rfs">NSW RFS FEED</span>
-          <span class="pill ${badgeClass}">${data['ALERT LEVEL'] || 'Incident'}</span>
-        </div>
-        <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#fff;">${data.title}</h2>
-        <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; line-height:1.6; color:#cbd5e1;">
-          <strong>Location:</strong> ${data['LOCATION'] || 'N/A'}<br>
-          <strong>Status:</strong> ${data['STATUS'] || 'Unknown'}<br>
-          <strong>Type:</strong> ${data['TYPE'] || 'Fire'}<br>
-          <strong>Size:</strong> ${data['SIZE'] || '-'}<br>
-          <strong>Agency:</strong> ${data['RESPONSIBLE AGENCY'] || 'RFS'}
-        </div>
-        <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:1rem;">Updated: ${data['UPDATED'] || 'Recently'}</div>
-        <a href="${data.link}" target="_blank" class="btn btn-primary" style="text-decoration:none; display:inline-block; width:100%; text-align:center;">View on Fires Near Me</a>
-      `;
+      if(lvl.includes('emergency')) badgeClass = "pill-red"; else if(lvl.includes('watch')) badgeClass = "pill-orange"; else if(lvl.includes('advice')) badgeClass = "pill-blue";
+      content.innerHTML = `<div style="margin-bottom:0.5rem;"><span class="pill pill-agency-rfs">NSW RFS FEED</span><span class="pill ${badgeClass}">${data['ALERT LEVEL'] || 'Incident'}</span></div><h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#fff;">${data.title}</h2><div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; line-height:1.6; color:#cbd5e1;"><strong>Location:</strong> ${data['LOCATION'] || 'N/A'}<br><strong>Status:</strong> ${data['STATUS'] || 'Unknown'}<br><strong>Type:</strong> ${data['TYPE'] || 'Fire'}<br><strong>Size:</strong> ${data['SIZE'] || '-'}<br><strong>Agency:</strong> ${data['RESPONSIBLE AGENCY'] || 'RFS'}</div><div style="font-size:0.8rem; color:#94a3b8; margin-bottom:1rem;">Updated: ${data['UPDATED'] || 'Recently'}</div><a href="${data.link}" target="_blank" class="btn btn-primary" style="text-decoration:none; display:inline-block; width:100%; text-align:center;">View on Fires Near Me</a>`;
     }
-
     async function showIncidentDetails(incident) {
       const sidebar = document.getElementById('incident-sidebar');
       const content = document.getElementById('sidebar-content');
@@ -538,26 +404,25 @@
       content.innerHTML = '<p style="color:var(--text-soft);">Loading details...</p>';
       const { data: updates } = await supabase.from('incident_updates').select('*').eq('incident_id', incident.id).order('created_at', { ascending: false });
       let updatesHtml = updates && updates.length > 0 ? `<div class="update-timeline">` + updates.map(u => `<div class="update-item"><div class="update-time">${new Date(u.created_at).toLocaleString()}</div><div class="update-msg markdown-body">${marked.parse(u.message)}</div></div>`).join('') + `</div>` : '<div style="font-size:0.85rem; color:var(--text-soft); margin-top:1rem; font-style:italic;">No updates yet.</div>';
-      
       let agenciesHtml = '';
-      if (incident.responding_agencies && incident.responding_agencies.length > 0) {
-        agenciesHtml = `<div style="margin-bottom:0.8rem;">` + incident.responding_agencies.map(a => `<span class="${getAgencyClass(a)}">${a}</span>`).join(' ') + `</div>`;
-      }
+      if (incident.responding_agencies && incident.responding_agencies.length > 0) { agenciesHtml = `<div style="margin-bottom:0.8rem;">` + incident.responding_agencies.map(a => `<span class="${getAgencyClass(a)}">${a}</span>`).join(' ') + `</div>`; }
       const typesList = Array.isArray(incident.type) ? incident.type : [incident.type];
       const typesHtml = typesList.map(t => `<span class="badge-type">${t}</span>`).join('');
-
       content.innerHTML = `
         <div style="margin-bottom:0.5rem;">${typesHtml}</div>
         <h2 style="margin:0 0 0.5rem 0; font-size:1.6rem; color:#fff;">${incident.title}</h2>
+        <div style="background:rgba(255,255,255,0.05); padding:1rem; border-radius:8px; margin-bottom:1rem; font-size:0.9rem; line-height:1.6; color:#cbd5e1;">
+          <strong>Status:</strong> ${incident.status || 'Active'}<br>
+          <strong>Size:</strong> ${incident.size || '-'}<br>
+          <strong>Expires:</strong> ${new Date(incident.expires_at).toLocaleString()}
+        </div>
         ${agenciesHtml}
         <div class="markdown-body" style="color:#cbd5e1; font-size:0.95rem; line-height:1.6; margin-top:0.5rem;">${marked.parse(incident.description || 'No description provided.')}</div>
-        <div style="font-size:0.7rem; color:var(--text-soft); margin-top:1rem;">Expires: ${new Date(incident.expires_at).toLocaleString()}</div>
         <hr style="border:0; border-top:1px solid var(--border-subtle); margin:1.5rem 0;">
         <h3 style="font-size:0.85rem; text-transform:uppercase; color:var(--text-soft); letter-spacing:0.1em; margin-bottom:0.5rem;">Incident Log</h3>
         ${updatesHtml}
       `;
     }
-
     function getAgencyClass(agency) { const a = agency.toUpperCase(); if(a.includes('RFS')) return 'pill pill-agency-rfs'; if(a.includes('FRNSW')) return 'pill pill-agency-frnsw'; if(a.includes('NSWAS')) return 'pill pill-agency-amb'; if(a.includes('SES')) return 'pill pill-agency-ses'; if(a.includes('POLICE')) return 'pill pill-blue'; if(a.includes('VRA')) return 'pill pill-white'; return 'pill pill-agency-util'; }
     function getPinStyle(inc) {
       let colors = [];
@@ -567,16 +432,10 @@
         if (t.includes('FIRE')) colors.push(TYPE_COLORS.FIRE); else if (t.includes('RESCUE') || t.includes('MVA')) colors.push(TYPE_COLORS.RESCUE); else if (t.includes('HAZARD')) colors.push(TYPE_COLORS.HAZARD); else if (t.includes('POLICE')) colors.push(TYPE_COLORS.POLICE); else if (t.includes('CARDIAC')) colors.push(TYPE_COLORS.MEDICAL); else colors.push(TYPE_COLORS.DEFAULT);
       }
       let background = colors[0];
-      if (colors.length > 1) {
-        const segment = 360 / colors.length;
-        let grad = 'conic-gradient(';
-        colors.forEach((c, i) => { grad += `${c} ${i * segment}deg ${(i + 1) * segment}deg${i < colors.length - 1 ? ', ' : ''}`; });
-        grad += ')'; background = grad;
-      }
+      if (colors.length > 1) { const segment = 360 / colors.length; let grad = 'conic-gradient('; colors.forEach((c, i) => { grad += `${c} ${i * segment}deg ${(i + 1) * segment}deg${i < colors.length - 1 ? ', ' : ''}`; }); grad += ')'; background = grad; }
       return { background: background, glow: colors[0] };
     }
     
-    // Init
     loadAllData();
     setInterval(loadAllData, 60000);
   </script>
